@@ -951,23 +951,8 @@ var Cerulean = function () {
 		}
 		firstRoom.items.push(attackItem);
 
-		//  0      33      67     100
-		//         |        |
-		//         |        |
-		// 33------+--------+---------
-		//         |        |C
-		//         |    A   |
-		//         |      B |
-		// 67------+--------+---------
-		//         |        |
-		//         |        |
-		//100      |        |
-
-		//A - firstRoom
-		//B - green collector
-		//C - the eyes
-
-		var itemCollectorRoom = findRoomNear(58, 58, rooms, cells);
+		return null;
+/*		var itemCollectorRoom = findRoomNear(58, 58, rooms, cells);
 		itemCollectorRoom.special = true;
 		var collectorItem = new Item(itemCollectorRoom.getCenter().multiply(GameConsts.tileSize), true);
 		collectorItem.pos.moveXY(16, 16);
@@ -988,7 +973,7 @@ var Cerulean = function () {
 		eyesRoom.enemies = [];
 		eyesRoom.items.push(eyesItem);
 
-		return {collector: collectorItem, eyes: eyesItem};
+		return {collector: collectorItem, eyes: eyesItem};*/
 	}
 
 	var start = function (shaders, audioUtil, startTime) {

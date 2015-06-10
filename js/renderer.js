@@ -243,7 +243,7 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 
 		rooms.forEach(function (room) {
 
-			if (!room.explored) return;
+			//if (!room.explored) return;
 			if ((room.pos.x + room.size.x) * gameConsts.tileSize < camera.pos.x) return;
 			if ((room.pos.y + room.size.y) * gameConsts.tileSize < camera.pos.y) return;
 			if (room.pos.x * gameConsts.tileSize > camera.pos.x + gameWindow.width) return;

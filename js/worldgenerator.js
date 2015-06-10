@@ -374,209 +374,14 @@ var WorldGenerator = function (gameConsts, Enemy) {
 		return Math.floor(Math.random() * (max-min) + min);
 	}
 
-	var getRoomZone = function (startRoom, direction, worldWidth, worldHeight) {
-		var pos = startRoom.pos.clone();
-		switch (direction) {
-			case Dir.UP:
-				pos.x += startRoom.size.x/2;
-			break;
-			case Dir.DOWN:
-				pos.x += startRoom.size.x/2;
-				pos.y += startRoom.height/2;
-			break;
-			case Dir.LEFT:
-				pos.y += startRoom.size.y/2;
-			break;
-			case Dir.RIGHT:
-				pos.y += startRoom.size.y/2;
-				pos.x += startRoom.width;
-			break;
-		}
-		pos.x /= worldWidth;
-		pos.y /= worldWidth;
-		if (pos.x < 0.33 || pos.x > 0.66) return "far";
-		if (pos.y < 0.33 || pos.y > 0.66) return "far";
-		return "center";
-
-	}
-
-	var addRoom = function (startRoom, direction, openRooms, filledCells, worldWidth, worldHeight) {
-		var width;
-		var height;
-		var maxExpansions;
-		var hallway = false;
-
-		var zone = getRoomZone(startRoom, direction, worldWidth, worldHeight);
-
-		var randRoomValue = rand(0, 100);
-		if (randRoomValue < 95) { //normal or jumbo rooms
-			width = 5;
-			height = 5;
-			maxExpansions = rand(0,100) < 70 ? rand(5,6) : 15;
-		} else { //hallway rooms
-			hallway = true;
-			if (rand(0,2) == 1) {
-				width = 3;
-				height = 6;
-			} else {
-				width = 6;
-				height = 3;
-			}
-			maxExpansions = 9;
-		}
-
-		var x;
-		var y;
-		switch (direction) {
-			case Dir.UP:
-				x = rand(startRoom.pos.x-width+3, startRoom.pos.x + startRoom.size.x - 3);
-				y = startRoom.pos.y - height;
-			break;
-			case Dir.DOWN:
-				x = rand(startRoom.pos.x-width+3, startRoom.pos.x + startRoom.size.x - 3);
-				y = startRoom.pos.y + startRoom.size.y;
-			break;
-			case Dir.LEFT:
-				x = startRoom.pos.x - width;
-				y = rand(startRoom.pos.y-height+3, startRoom.pos.y + startRoom.size.y - 3);
-			break;
-			case Dir.RIGHT:
-				x = startRoom.pos.x + startRoom.size.x;
-				y = rand(startRoom.pos.y-height+3, startRoom.pos.y + startRoom.size.y - 3);
-			break;
-		}
-		if (x < 0 || y < 0 || x > worldWidth || y > worldHeight) return;
-
-		//Find nearby closed rooms
-
-		var nearbyRooms = findExistingRoomsInArea(filledCells, x-maxExpansions-1, y-maxExpansions-1, width+maxExpansions*2+2, height+maxExpansions*2+2);
-
-		//Are we already colliding? If so, abort, this room will never fit.
-		if (nearbyRooms.some(function (room) {
-			return roomCollidesWith(room, x, y, width, height);
-		})) return;
-
-		//direction we can expand:
-		var expansions = [Dir.LEFT, Dir.RIGHT, Dir.UP, Dir.DOWN];
-
-		//special rules for hallways - never get wider
-		if (hallway) {
-			if (width > height) {
-				expansions = [Dir.LEFT, Dir.RIGHT];
-			} else {
-				expansions = [Dir.UP, Dir.DOWN];
-			}
-		}
-
-		var expansionCount = 0;
-		while (expansions.length > 0 && expansionCount < maxExpansions) {
-			var rnd = rand(0, expansions.length);
-			var rndDir = expansions[rnd];
-			switch(rndDir) {
-				case Dir.UP:
-					if (nearbyRooms.some(function (room) {
-						return roomCollidesWith(room, x, y - 1, width, 1);
-					}) || y == 0) {
-						expansions = expansions.filter(function (e) {return e != rndDir});
-					} else {
-						y--;
-						height++;
-						expansionCount++;
-					}
-					break;
-				case Dir.DOWN:
-					if (nearbyRooms.some(function (room) {
-						return roomCollidesWith(room, x, y + height, width, 1);
-					}) || y + height == worldHeight) {
-						expansions = expansions.filter(function (e) {return e != rndDir});
-					} else {
-						height++;
-						expansionCount++;
-					}
-					break;
-				case Dir.LEFT:
-					if (nearbyRooms.some(function (room) {
-						return roomCollidesWith(room, x-1, y, 1, height);
-					}) || x == 0) {
-						expansions = expansions.filter(function (e) {return e != rndDir});
-					} else {
-						x--;
-						width++;
-						expansionCount++;
-					}
-					break;
-				case Dir.RIGHT:
-					if (nearbyRooms.some(function (room) {
-						return roomCollidesWith(room, x+width, y, 1, height);
-					}) || x + width == worldWidth) {
-						expansions = expansions.filter(function (i) {i != rndDir});
-					} else {
-						width++;
-						expansionCount++;
-					}
-					break;
-				default:
-					console.log("Weird expansion dir " + rndDir);
-			}
-		}
-
-		var newRoom = new Room(x, y, width, height, zone);
-		//addDoorsBetween(startRoom, newRoom, direction);
-
-		//Find rooms to add doorways to
-		nearbyRooms.filter(function (room) {
-			return roomCollidesWith(room, x - 1, y+2, 1, height-4);
-		}).forEach(function (room) {
-			addDoorsBetween(newRoom, room, Dir.LEFT);
-		});
-
-		nearbyRooms.filter(function (room) {
-			return roomCollidesWith(room, x + width, y+2, 1, height-4);
-		}).forEach(function (room) {
-			addDoorsBetween(newRoom, room, Dir.RIGHT);
-		});
-
-		nearbyRooms.filter(function (room) {
-			return roomCollidesWith(room, x+2, y-1, width-4, 1);
-		}).forEach(function (room) {
-			addDoorsBetween(newRoom, room, Dir.UP);
-		});
-
-		nearbyRooms.filter(function (room) {
-			return roomCollidesWith(room, x+2, y+height, width-4, 1);
-		}).forEach(function (room) {
-			addDoorsBetween(newRoom, room, Dir.DOWN);
-		});
-
-		openRooms.push(newRoom);
-		addFilledCells(filledCells, newRoom);
-
-		//set up enemies in room
-		var area = width * height;
-		var enemyCount = 0;
-		var allowBigEnemies = (width >= 6 && height >= 6);
-		if (width <= 3 || height <= 3) {
-			enemyCount = 0;
-		} else if (area <= 6*6) {
-			enemyCount = 1;
-		} else if (area <= 7*8) {
-			enemyCount = 2;
-		} else if (area < 9*9) {
-			enemyCount = 3;
-		} else if (area < 10*10) {
-			enemyCount = 4;
-		} else {
-			enemyCount = 5;
-		}
-		for (var i = 0; i < enemyCount; i++) {
-			var type = null;
-			while (type == null) {
-				var type = Math.floor(Math.random() * 5); //number of enemy types
-				if (!allowBigEnemies && (type == 2 || type == 4)) type = null; //hack to remove big enemies from small rooms
-			};
-			newRoom.enemies.push(new Enemy(newRoom.getRandomPointInside(), newRoom, type));
-		}
-	}
+/* how to spawn enemies
+	var type = null;
+	while (type == null) {
+		var type = Math.floor(Math.random() * 5); //number of enemy types
+		if (!allowBigEnemies && (type == 2 || type == 4)) type = null; //hack to remove big enemies from small rooms
+	};
+	newRoom.enemies.push(new Enemy(newRoom.getRandomPointInside(), newRoom, type));
+	*/
 
 	var addFilledCells = function(filledCells, room) {
 		for (var x = room.pos.x; x < room.size.x+room.pos.x; x++) {
@@ -590,49 +395,69 @@ var WorldGenerator = function (gameConsts, Enemy) {
 		return x + y * gameConsts.worldWidth;
 	}
 
-	var findExistingRoomsInArea = function(filledCells, areaX, areaY, width, height) {
-		var existingRooms = [];
-		var hashSet = []; //an efficient way to avoid adding duplicates to this list.
-		for (var x = areaX; x < areaX + width; x++) {
-			for (var y = areaY; y < areaY + height; y++) {
-				var key = makeKey(x, y);
-				var value = filledCells[key];
-				if (value && !hashSet[value.id]) {
-					existingRooms.push(value);
-					hashSet[value.id] = true;
-				}
-			}
-		}
-		return existingRooms;
+	var rooms = [];
+	var filledCells = {};
+
+	this.addRoom = function(x, y, width, height) {
+		x = x * 3;
+		y = y * 3;
+		width *= 3;
+		height *= 3;
+		var newRoom = new Room(x, y, width, height, "center");
+		rooms.push(newRoom);
+		addFilledCells(filledCells, newRoom);		
+
+		//Find rooms to add doorways to
+		rooms.filter(function (room) {
+			return roomCollidesWith(room, x - 1, y+2, 1, height-4);
+		}).forEach(function (room) {
+			addDoorsBetween(newRoom, room, Dir.LEFT);
+		});
+
+		rooms.filter(function (room) {
+			return roomCollidesWith(room, x + width, y+2, 1, height-4);
+		}).forEach(function (room) {
+			addDoorsBetween(newRoom, room, Dir.RIGHT);
+		});
+
+		rooms.filter(function (room) {
+			return roomCollidesWith(room, x+2, y-1, width-4, 1);
+		}).forEach(function (room) {
+			addDoorsBetween(newRoom, room, Dir.UP);
+		});
+
+		rooms.filter(function (room) {
+			return roomCollidesWith(room, x+2, y+height, width-4, 1);
+		}).forEach(function (room) {
+			addDoorsBetween(newRoom, room, Dir.DOWN);
+		});
 	}
 
 	this.generate = function () {
-		console.log("Generating level...");
-		var startTime = Date.now();
-		var worldWidth = gameConsts.worldWidth;
-		var worldHeight = gameConsts.worldHeight;
-		var openRooms = [];
-		var closedRooms = [];
-		var filledCells = {};
-		var firstRoom = new Room(Math.floor(worldWidth / 2)-5, Math.floor(worldHeight / 2)-5, 11, 11, "center");
-		openRooms.push(firstRoom);
-		addFilledCells(filledCells, firstRoom);
+		this.addRoom(9, 8, 4, 3); //center
 
-		while (openRooms.length > 0) {
+		//right hand side
+		this.addRoom(13, 9, 8, 1); //right hall
+		this.addRoom(17, 6, 4, 3); //top right goal
+		this.addRoom(16, 10, 2, 2); //lower right first room
+		this.addRoom(18, 10, 3, 3); //lower right second room
+		this.addRoom(17, 13, 3, 3); //lower right goal
 
-			if (closedRooms.length > 5000) {
-				console.log("Too many rooms!");
-				return closedRooms; //abort
-			}
+		//lower left
+		this.addRoom(10, 11, 1, 3); //down hall
+		this.addRoom(6, 14, 5, 1); //down left hall
+		this.addRoom(7, 15, 3, 2); //room below down left hall
+		this.addRoom(3, 11, 3, 4); //down left goal room
 
-			var room = (Math.random() > 0.5) ? openRooms.shift() : openRooms.pop();
-			closedRooms.push(room);
-			addRoom(room, Dir.UP, openRooms, filledCells, worldWidth, worldHeight);
-			addRoom(room, Dir.LEFT, openRooms, filledCells, worldWidth, worldHeight);
-			addRoom(room, Dir.DOWN, openRooms, filledCells, worldWidth, worldHeight);
-			addRoom(room, Dir.RIGHT, openRooms, filledCells, worldWidth, worldHeight);
-		}
-		console.log("Generated " + closedRooms.length + " rooms in " + (Date.now() - startTime) + " ms");
-		return {rooms:closedRooms, cells: filledCells};
+		//upper
+		this.addRoom(11, 6, 1, 2); //up hall
+		this.addRoom(8, 3, 5, 3); //up goal room	
+
+		//uppper left
+		this.addRoom(3, 5, 5, 1); //hall from up goal to up left goal
+		this.addRoom(2, 6, 4, 3); //left goal room	
+		this.addRoom(4, 9, 1, 2); //hall from up left goal to down left goal
+
+		return {rooms:rooms, cells: filledCells};
 	}
 }
