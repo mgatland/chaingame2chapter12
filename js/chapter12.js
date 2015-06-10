@@ -102,6 +102,7 @@ var Cerulean = function () {
 				}
 				storyFrame++;
 				if (storyFrame == 2*sec) {
+					player.room.locked = false;
 					messages.addMessage("WHAT HAVE YOU DONE?", 1);
 					messages.addMessage("GET OUT!", 2);
 					messages.addMessage("GET OUT!", 20);
@@ -272,7 +273,6 @@ var Cerulean = function () {
 				storyFrame = 0;
 				player.canAttack = true;
 				player.canUseDoors = true;
-				player.room.lockDoors();
 				player.room.spawnTowers();
 				audioUtil.playGotItem();
 			}
@@ -1001,6 +1001,8 @@ var Cerulean = function () {
 		player.respawn();
 		player.pos.y -= Math.floor((firstRoom.size.y - 3) * GameConsts.tileSize / 2);
 		player.pos.x -= Math.floor((firstRoom.size.x - 3) * GameConsts.tileSize / 2);
+
+		firstRoom.lockDoors();
 
 		firstRoom.explored = true;
 		player.roomsExplored++;

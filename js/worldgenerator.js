@@ -77,9 +77,6 @@ var WorldGenerator = function (gameConsts, Enemy) {
 			}
 		}
 
-		if (this.locked && this.countEnemies() === 0) {
-			this.locked = false;
-		}
 	}
 
 	//called when the player leaves a room
