@@ -1,5 +1,7 @@
 var Cerulean = function () {
 
+	var testing = false;
+
 	var GameWindow = function () {
 		this.width = 0;
 		this.height = 0;
@@ -74,9 +76,7 @@ var Cerulean = function () {
 		var sec = 60; //just a constant
 
 		var storyFrame = 0;
-		this.update = function (messages, player, companion, audioUtil) {
-
-			var quietAndTogether = (companion && player.room === companion.room && player.room.enemies.length === 0);
+		this.update = function (messages, player, audioUtil) {
 
 			if (this.won) {
 				this.mode = "won";
@@ -106,10 +106,11 @@ var Cerulean = function () {
 				}
 
 			} else if (this.mode === "intro2") {
-				storyFrame++;
-				if (storyFrame == 0.5*sec) {
-					messages.addMessage("", 2, null, true); //hardcoded Chapter 12, by Matthew Gatland
-					messages.addMessage("Troublemaker.", 2);
+				if (storyFrame == 0.0*sec) {
+					if (!testing) {
+						messages.addMessage("", 2, null, true); //hardcoded Chapter 12, by Matthew Gatland
+						messages.addMessage("Troublemaker.", 2);
+					}
 					messages.addMessage("That's what they call you.", 2, function () {_this.startScreen = false;});
 					messages.addMessage("Roaming the stars, upsetting the balance.", 3);
 					messages.addMessage("You're lucky I pulled you home.", 3);
@@ -125,6 +126,7 @@ var Cerulean = function () {
 					messages.addMessage("I have wars to plan.", 2);
 					messages.addMessage("", 1);
 				}
+				storyFrame++;
 			}
 		}
 
@@ -242,14 +244,20 @@ var Cerulean = function () {
 
 	var noop = function () {};
 
-	var Companion = function (room) {
+	var Enemy = function (pos, room) {
 		extend(this, humanMixin);
+		var _this = this;
 		this.home = room;
 		this.room = room;
+		this.live = true;
 		this.health = this.maxHealth;
-		this.pos = this.home.getCenter();
-		this.pos.x *= GameConsts.tileSize;
-		this.pos.y *= GameConsts.tileSize;
+		this.pos = pos;
+		this.speed = 3;
+		this.size = new Pos(20, 20);
+		this.state = "wait";
+		this.nextSearchRoom = null;
+		this.oldSearchRoom = null;
+		this.roomsSearched = 0;
 
 		var oldPath = null;
 		var oldPathEnd = null;
@@ -261,66 +269,84 @@ var Cerulean = function () {
 			return (this.room != oldPathStart || end != oldPathEnd);
 		}
 
-		var safeTimer = 0;
 		this.update = function (player) {
-
-			if (this.wandTarget && !this.wandTarget.live) {
-				this.wandTarget = null;
-			}
-
-			//fully charged. Shall we attack?
-			var oldTarget = this.stunTarget;
-			var newTarget = null;
-			if (this.room.enemies.length > 0) {
-				newTarget = this.room.enemies.reduce(function (p, v) {
-					return (p.type > v.type && p.live === true ? p : v);
-				});
-			}
-
-			if (newTarget != oldTarget) {
-				if (oldTarget) oldTarget.stunned = false;
-				if (newTarget) newTarget.stunned = true;
-				this.stunTarget = newTarget;
-			}
-
-			if (player.room.enemies.length == 0) {
-				safeTimer++;
-			} else {
-				safeTimer = 0;
-			}
-
 			if (this.room == player.room) {
-				if (this.room.enemies.length == 0) {
-					var distToPlayer = this.pos.distanceTo(player.pos);
-					if (distToPlayer > 50 && safeTimer > 45) {
-						this._moveTowards(player.pos, "horizontal", 2);
-						this._moveTowards(player.pos, "vertical", 2);
+				this.state = "see";
+				this.speed = 3;
+				this._moveTowards(player.pos, "horizontal");
+				this._moveTowards(player.pos, "vertical");
+			} else {
+				if (this.state === "wait") {
+					//nothing
+				} else if (this.state === "see") {
+					//we just lost them
+					this.nextSearchRoom = player.room;
+					this.oldSearchRoom = this.room;
+					this.roomsSearched = 0;
+					this.state = "search";
+				}
+
+				if (this.state === "search") {
+					if (this.room == this.nextSearchRoom) {
+						this.roomsSearched++;
+						if (this.roomsSearched > 2) {
+							//getting tired.
+							this.speed = 2;
+						}
+						if (this.roomsSearched > 4) {
+							this.speed = 1;
+						}
+						//guess where she went next
+						var guesses = [];
+						this.room.doors.forEach(function (door) {
+							if (door.otherRoom != _this.oldSearchRoom) {
+								guesses.push(door.otherRoom);
+							}
+						});
+						if (guesses.length == 0) {
+							//have to backtrack.
+							this.nextSearchRoom = this.oldSearchRoom;
+						} else {
+							this.nextSearchRoom = guesses[Math.floor(Math.random() * guesses.length)];	
+						}
+						//never backtrack to here
+						this.oldSearchRoom = this.room;
+					} else {
+						//go to next room
+						var doorToUse = this.room.doors.filter(function (door) {
+							return door.otherRoom === _this.nextSearchRoom;
+						}).pop();
+						moveToDoorway(doorToUse);
 					}
 				}
-			} else {
-				var path = this._pathIsDirty(player.room) ? this.room.getPathTo(player.room) : oldPath;
-				oldPath = path;
-				oldPathEnd = player.room;
-				oldPathStart = this.room;
 
-				var doorToUse = this.room.doors.filter(function (door) {
-					return door.otherRoom === path[0];
-				}).pop();
-				var moveDest = doorToUse.getCenter();
+				/*/unused
+				if (this.state === "goto") {
+					var path = this._pathIsDirty(this.nextSearchRoom) ? this.room.getPathTo(this.nextSearchRoom) : oldPath;
+					oldPath = path;
+					oldPathEnd = player.room;
+					oldPathStart = this.room;
 
-				var moveDest;
-				if (doorToUse.overlaps(this)) {
-					moveDest = doorToUse.getFarSidePos();
-					this.invulnerableTime = 7;
-				} else {
-					moveDest = doorToUse.getNearSidePos();
-					this.invulnerableTime = 0;
-				}
-				this._moveTowards(moveDest, "horizontal");
-				this._moveTowards(moveDest, "vertical");
+					var doorToUse = this.room.doors.filter(function (door) {
+						return door.otherRoom === path[0];
+					}).pop();
+					moveToDoorway(doorToUse);					
+				}*/
 			}
 			this._updateCurrentRoom();
 		};
+
+		var moveToDoorway = function(doorToUse) {
+			var moveDest = doorToUse.getCenter();
+			if (doorToUse.overlaps(_this)) {
+				moveDest = doorToUse.getFarSidePos();
+			} else {
+				moveDest = doorToUse.getNearSidePos();
+			}
+			_this._moveTowards(moveDest, "horizontal");
+			_this._moveTowards(moveDest, "vertical");
+		}
+
 		this._inDoorway = noop;
 		this._leftRoom = noop;
 		this._enteredRoom = noop;
@@ -339,7 +365,7 @@ var Cerulean = function () {
 
 		this.attackCharge = 0;
 		this.maxAttackCharge = 5 * 60;
-		this.attackChargeLimit = this.maxAttackCharge;
+		this.attackChargeLimit = testing ? 15 : this.maxAttackCharge;
 
 		this.canUseDoors = true;
 		this.canAttack = false;
@@ -657,140 +683,6 @@ var Cerulean = function () {
 		}
 	}
 
-	var Enemy = function (pos, room, type, callback) {
-		this.pos = pos;
-		this.room = room;
-		this.dest = null;
-		this.refireTimer = 0;
-		this.health = 20;
-		this.live = true;
-		this.angle = 0;
-		this.fireAngle = Math.floor(Math.random() * 360);
-		this.type = type;
-		this.stunned = false;
-
-		if (this.type == 0) { //fires at player square
-			this.size = new Pos(25, 25);
-			this.speed = 0.3;
-			this.health = 20;
-		} else if (this.type == 1) { //fires in a spiral horizontal line
-			this.size = new Pos(35, 20);
-			this.speed = 0.0;
-			this.health = 15;
-		} else if (this.type == 2) { //fires 5 shots at player (big square)
-			this.size = new Pos(44, 44);
-			this.speed = 0.2;
-			this.health = 30;
-		} else if (this.type == 3) {//rapidfire left and right of player (vertical line)
-			this.size = new Pos(20, 35);
-			this.speed = 0.3;
-			this.health = 10;
-		} else if (this.type === 4) { //fires radially
-			this.size = new Pos(44, 30); //big horziontal line
-			this.speed = 0.0;
-			this.health = 10;
-		} else if (this.type === 255) {
-			this.size = new Pos(40, 40);
-			this.speed = 0;
-			this.health = 10;
-		}
-	}
-	Enemy.prototype.getCenter = function () {
-		var x = Math.floor(this.pos.x + this.size.x / 2);
-		var y = Math.floor(this.pos.y + this.size.y / 2);
-		return new Pos(x, y);
-	}
-
-	Enemy.prototype.update = function (player, audioUtil) {
-
-		//move
-		if (!this.dest) {
-			this.dest = this.room.getRandomPointInside();
-			this.angle = this.pos.angleTo(this.dest);
-		}
-
-		if (!this.stunned) {
-			var xSpeed = (this.speed * Math.sin(3.14159 / 180.0 * this.angle));
-			var ySpeed = (this.speed * -Math.cos(3.14159 / 180 * this.angle));
-			this.pos.x += xSpeed;
-			this.pos.y += ySpeed;
-
-			if (this.pos.distanceTo(this.dest) < 16) {
-				this.dest = null;
-			}
-
-			if (this.refireTimer == 0 && this.type < 255) {
-				if (player) {
-
-					if (this.type == 0) {
-						//the seeking shot
-						var angle = this.pos.angleTo(player.pos);
-						var shot = new Shot(this.getCenter(), this.room, angle);
-						this.room.shots.push(shot);
-						this.refireTimer = 15;
-					} else if (this.type == 1) {
-						//the spinner shot
-						this.fireAngle += 25;
-						if (this.fireAngle > 360) this.fireAngle -= 360;
-						var shot2 = new Shot(this.getCenter(), this.room, this.fireAngle);
-						this.room.shots.push(shot2);
-						this.refireTimer = 7;
-					} else if (this.type == 2) {
-						var angle = this.pos.angleTo(player.pos);
-						for (var i = -2; i <= 2; i++) {
-							this.room.shots.push(new Shot(this.getCenter(), this.room, angle + 10*i));
-						}
-						this.refireTimer = 15;
-					} else if (this.type == 3) {
-						var angle = this.pos.angleTo(player.pos);
-						for (var i = -1; i <= 1; i+= 2) {
-							this.room.shots.push(new Shot(this.getCenter(), this.room, angle + 40*i));
-						}
-						this.refireTimer = 8;
-					} else {
-						var angle = this.fireAngle;
-						for (var i = 0; i < 360; i+= 30) {
-							this.room.shots.push(new Shot(this.getCenter(), this.room, angle + i));
-						}
-						this.refireTimer = 30;
-						this.fireAngle += 5;
-						if (this.fireAngle > 360) this.fireAngle -= 360;
-					}
-
-				audioUtil.enemyAttack();
-
-				}
-
-			} else {
-				this.refireTimer--;
-			}
-
-		}
-
-		//duplicate code from Shot
-		//update highlight status
-		if (player && player.attackPowerOn(this) > this.health) {
-			this.targetted = true;
-		} else {
-			this.targetted = false;
-		}
-	}
-
-	Enemy.prototype.shocked = function (damage) {
-		if (!this.live) return;
-		if (damage > this.health) {
-			this.health = 0;
-			this.live = false;
-			this.pos.floor();
-			for (var x = this.pos.x; x < this.pos.x + this.size.x; x += 5) {
-				for (var y = this.pos.y; y < this.pos.y + this.size.y; y += 5) {
-					this.room.items.push(new Item(new Pos(x, y)));
-				}
-			}
-		}
-	}
-	//End of Enemy.Prototype
-
 	this.load = function () {
 		var startTime = Date.now();
 		var audioUtil = new AudioUtil();
@@ -845,6 +737,9 @@ var Cerulean = function () {
 			onHackFirstRoom);
 		firstRoom.items.push(controlPanel);
 
+		goalRooms[0].spawnEnemy();
+		goalRooms[2].spawnEnemy();
+		goalRooms[4].spawnEnemy();
 		goalRooms.forEach(function (room) {
 			var onHackPortal = function (player) {
 				console.log("Hacked a portal");
@@ -898,8 +793,6 @@ var Cerulean = function () {
 		firstRoom.explored = true;
 		player.roomsExplored++;
 
-		var companion = null;
-
 		var messages = new Messages(player, audioUtil, renderer.overlay);
 
 		var update = function () {
@@ -907,18 +800,15 @@ var Cerulean = function () {
 			audioUtil.update();
 			messages.update();
 
-			player.story.update(messages, player, companion, audioUtil);
+			player.story.update(messages, player, audioUtil);
 
-			player.room.update(player, audioUtil);
-			if (player.lastRoom) player.lastRoom.update(player, audioUtil);
+			rooms.forEach(function (room) {
+				room.update(player, audioUtil);
+			});
+			//player.room.update(player, audioUtil);
+			//if (player.lastRoom) player.lastRoom.update(player, audioUtil);
 
 			player.update(keyboard, audioUtil, messages);
-			if (companion) companion.update(player);
-
-			//HACK: replace with a listener once we support listeners
-			if (player.roomsExplored >= 7 && player.room != firstRoom && companion == null) {
-				companion = new Companion(firstRoom);
-			}
 
 			keyboard.update();
 		}
@@ -934,7 +824,7 @@ var Cerulean = function () {
 			camera.pos.x = player.pos.x - gameWindow.width / 2 + GameConsts.tileSize / 2;
 			camera.pos.y = player.pos.y - gameWindow.height / 2 + GameConsts.tileSize / 2;
  			//draw
-			renderer.draw(player, companion, rooms, camera, currentFps);
+			renderer.draw(player, rooms, camera, currentFps);
 			var newSecond = Math.floor(Date.now() / 1000);
 			if (newSecond != thisSecond) {
 				thisSecond = newSecond;

@@ -220,14 +220,14 @@ var WorldGenerator = function (gameConsts, Enemy) {
 		return neighbours;
 	}
 
-	var spawnTowerInternal = function (x, y, room) {
+	var spawnEnemyInternal = function (x, y, room) {
 		var pos = new Pos(x * gameConsts.tileSize, y * gameConsts.tileSize);
-		var tower = new Enemy(pos, room, 255);
+		var tower = new Enemy(pos, room, 0);
 		room.enemies.push(tower);
 	}
 
-	Room.prototype.spawnTower = function () {
-		spawnTowerInternal(Math.floor(this.pos.x + this.size.x/2 - 1),
+	Room.prototype.spawnEnemy = function () {
+		spawnEnemyInternal(Math.floor(this.pos.x + this.size.x/2 - 2),
 			Math.floor(this.pos.y + this.size.y/2), this);
 	}
 

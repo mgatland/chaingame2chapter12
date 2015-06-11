@@ -239,7 +239,7 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 			}
 	}
 
-	this.drawGame = function (vertices, colors, player, companion, rooms, camera, fps) {
+	this.drawGame = function (vertices, colors, player, rooms, camera, fps) {
 		rooms.forEach(function (room) {
 
 			//if (!room.explored) return;
@@ -308,7 +308,7 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 
 			});
 
-			//Draw companion attack effects in the correct room
+			/*//Draw companion attack effects in the correct room
 			if (companion && companion.room == room) {
 				var wandColor = green;
 				//Draw attack beam
@@ -328,47 +328,11 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 						addRectWithCamera(vertices, colors, pos.x-1, pos.y-1, 2, 2, black, camera);
 						pos.moveAtAngle(angle, stepDist);
 					}
-				} else {
-					//Draw wand
-					if (companion.wandTarget) {
-						var pos = companion.getCenter();
-						var end = companion.wandTarget.pos;
-						var angle = pos.angleTo(end);
-						wandCounter++;
-						if (wandCounter >= 2) {
-							wandCounter = 0;
-							wandOffset++;
-							if (wandOffset == 7) wandOffset = 0;
-						}
-						pos.moveAtAngle(angle, wandOffset);
-						for (var i = 0; i < 6; i++) {
-							addRectWithCamera(vertices, colors, Math.floor(pos.x), Math.floor(pos.y), 2, 2, wandColor, camera);
-							pos.moveAtAngle(angle, 7);
-						}
-						pos.moveAtAngle(angle, -2 - wandOffset);
-						pos.floor();
-						//big rectangle at the end
-						addRectWithCamera(vertices, colors, pos.x-2, pos.y-2, 5, 5, wandColor, camera);
-						addRectWithCamera(vertices, colors, pos.x-1, pos.y-1, 3, 3, black, camera);
-					}
 				}
-			}
+			}*/
 
 			room.enemies.forEach(function (enemy) {
-				var color = null;
-				if (enemy.targetted && flicker) {
-					color = green;
-				} else {
-					color = red;
-				}
-
-				if (enemy.stunned) {
-					addRectWithCamera(vertices, colors, enemy.pos.x-4, enemy.pos.y-4,
-					enemy.size.x+8, enemy.size.y+8, green, camera);
-					addRectWithCamera(vertices, colors, enemy.pos.x-3, enemy.pos.y-3,
-					enemy.size.x+6, enemy.size.y+6, black, camera);
-				}
-
+				var color = red;
 				addRectWithCamera(vertices, colors, enemy.pos.x, enemy.pos.y,
 					enemy.size.x, enemy.size.y, color, camera);
 			});
@@ -398,12 +362,6 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 			addRectWithCamera(vertices, colors, beamX2, player.pos.y + player.size.y - gamescreen.height, player.teleBeamWidth/2, gamescreen.height, brightWhite, camera);
 		}
 
-		//Draw companion
-		if (companion) {
-			var playerColor = (companion.invlunerableTime > 0 && flicker) ? black : green;
-			addRectWithCamera(vertices, colors, companion.pos.x, companion.pos.y, companion.size.x, companion.size.y, playerColor, camera);
-		}
-
 		var insetX = player.pos.x + 2;
 		var insetY = player.pos.y + 2;
 		var insetSizeX = player.size.x - 4;
@@ -421,7 +379,7 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 	}
 
 
-	this.draw = function (player, companion, rooms, camera, fps) {
+	this.draw = function (player, rooms, camera, fps) {
 
 		hudOverlay.clear();
 
@@ -456,7 +414,7 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 		}
 
 		if (showGame) {
-			this.drawGame(vertices, colors, player, companion, rooms, camera, fps);
+			this.drawGame(vertices, colors, player, rooms, camera, fps);
 		}
 
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
