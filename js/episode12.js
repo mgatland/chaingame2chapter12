@@ -258,6 +258,7 @@ var Cerulean = function () {
 		this.nextSearchRoom = null;
 		this.oldSearchRoom = null;
 		this.oldSearchRoom2 = null;
+		this.oldSearchRoom3 = null;
 		this.roomsSearched = 0;
 
 		this.startRoom = this.room;
@@ -275,25 +276,44 @@ var Cerulean = function () {
 
 		var guessNextRoom = function(currentRoom) {
 			var guesses = [];
+			//closets are rooms with only 1 exit and no useful items left
+			var closets = [];
 			var fallBack1 = null;
 			var fallBack2 = null;
+			var fallBack3 = null;
 			currentRoom.doors.forEach(function (door) {
-				if (door.otherRoom == _this.oldSearchRoom2 && !door.otherRoom.locked) {
+				if (door.otherRoom.locked) return;
+				if (door.otherRoom == _this.oldSearchRoom3) {
 					fallBack1 = door.otherRoom;
-				} else if (door.otherRoom == _this.oldSearchRoom && !door.otherRoom.locked) {
+				} else if (door.otherRoom == _this.oldSearchRoom2) {
 					fallBack2 = door.otherRoom;
-				} else if (!door.otherRoom.locked) {
+				} else if (door.otherRoom == _this.oldSearchRoom) {
+					fallBack3 = door.otherRoom;
+				} else if (door.otherRoom.doors.length === 1 
+					&& (door.otherRoom.items.length === 0
+					|| !door.otherRoom.items[0].canBeUsed)) {
+					closets.push(door.otherRoom);
+				} else {
 					guesses.push(door.otherRoom);
 				}
 			});
-			if (guesses.length == 0) {
-				if (fallBack1) return fallBack1; //have to backtrack
-				if (fallBack2) return fallBack2; //have to backtrack
-				console.log("Error: this should never happen.");
-				return currentRoom.doors[0].otherRoom;
-			} else {
+			//we only search a closet if there are no better options, or at 50% chance of other rooms
+			//(if we're slow searching, we are more likely to check closets.)
+			var closetOdds = (this.speed > 1) ? 0.5 : 0.75;
+			if (closets.length > 0 && (Math.random() < closets.length/(guesses.length+closets.length) * closetOdds || guesses.length == 0)) {
+				console.log("searching closet (odds=" + closetOdds + ")");
+				return closets[Math.floor(Math.random() * closets.length)];	
+			}
+			if (guesses.length > 0) {
 				return guesses[Math.floor(Math.random() * guesses.length)];	
 			}
+			//no new paths, we have to back track
+			console.log("backtracking");
+			if (fallBack1) return fallBack1;
+			if (fallBack2) return fallBack2;
+			if (fallBack3) return fallBack3;
+			console.log("Error: this should never happen.");
+			return currentRoom.doors[0].otherRoom;
 		}
 
 		this.update = function (player, audioUtil) {
@@ -301,11 +321,12 @@ var Cerulean = function () {
 			if (resetGuards) {
 				this.state = "search";
 				this.speed = 1;
-				this.roomsSearched = 4; //will keep speed to 1
+				this.roomsSearched = 10; //will keep speed to 1
 				this.pos = this.startPos.clone();
 				this.room = this.startRoom;
 				this.oldSearchRoom = this.room;
 				this.oldSearchRoom2 = null;
+				this.oldSearchRoom3 = null;
 				this.nextSearchRoom = null;
 			}
 			if (this.room == player.room) {
@@ -336,6 +357,7 @@ var Cerulean = function () {
 					this.nextSearchRoom = player.room;
 					this.oldSearchRoom = this.room;
 					this.oldSearchRoom2 = null;
+					this.oldSearchRoom3 = null;
 					this.roomsSearched = 0;
 					this.state = "search";
 					this.speed = 3;
@@ -351,12 +373,13 @@ var Cerulean = function () {
 							//getting tired.
 							this.speed = 2;
 						}
-						if (this.roomsSearched > 4) {
+						if (this.roomsSearched > 6) {
 							this.speed = 1;
 						}
 						//guess where she went next
 						this.nextSearchRoom = guessNextRoom(this.room);
 						//never backtrack to here
+						this.oldSearchRoom3 = this.oldSearchRoom2;
 						this.oldSearchRoom2 = this.oldSearchRoom;
 						this.oldSearchRoom = this.room;
 					} else {
@@ -384,6 +407,7 @@ var Cerulean = function () {
 					} else {
 						this.oldSearchRoom = this.room; //to avoid backtracking at the end
 						this.oldSearchRoom2 = null;
+						this.oldSearchRoom3 = null;
 						var path = this._pathIsDirty(this.nextSearchRoom) ? this.room.getPathTo(this.nextSearchRoom) : oldPath;
 						oldPath = path;
 						oldPathEnd = this.nextSearchRoom;
