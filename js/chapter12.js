@@ -90,13 +90,14 @@ var Cerulean = function () {
 					messages.addMessage("(Use arrow keys to move)", 2);
 					messages.addMessage("Troublemaker.", 2);
 					messages.addMessage("That's what they call you.", 2);
-					messages.addMessage("Roaming the stars, causing chaos.", 4);
-					messages.addMessage("I had to bring you home.", 3);
+					messages.addMessage("Roaming the stars, causing chaos,", 4);
+					messages.addMessage("And revealing all our human weaknesses.", 2);
+					messages.addMessage("I had to pull you home.", 3);
 					messages.addMessage("", 1);
 					messages.addMessage("I asked MI6 to scan your phone.", 2);
 					messages.addMessage("Impressive location history.", 5);
 					messages.addMessage("My starpervs are now opening gateways", 3);
-					messages.addMessage("to every world you visited.", 3);
+					messages.addMessage("To every world you visited.", 3);
 					messages.addMessage("Soon, Britian's armies will invade them all.", 4);
 					messages.addMessage("The United Kingdom will rule through space!", 3);
 					messages.addMessage("All thanks to you.", 3);
