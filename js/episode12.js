@@ -93,7 +93,7 @@ var Cerulean = function () {
 						_this.endScreen = true;
 					});
 					messages.addMessage("We have power you can't imagine!", 3);
-					messages.addMessage("END OF CHAPTER 12", 999, null, true);
+					messages.addMessage("END OF EPISODE 12", 999, null, true);
 				}
 			} else if (this.mode == "intro") {
 				storyFrame++;
@@ -110,7 +110,7 @@ var Cerulean = function () {
 				}
 				if (storyFrame == 0.0*sec) {
 					audioUtil.playIntro();
-					messages.addMessage("", 2, null, true); //hardcoded Chapter 12, by Matthew Gatland
+					messages.addMessage("", 2, null, true); //hardcoded Episode 12, by Matthew Gatland
 					messages.addMessage("Do you know what the aliens call you now?", 3);
 					messages.addMessage("The Troublemaker.", 3);
 					messages.addMessage("Roaming the stars, upsetting the balance.", 3);

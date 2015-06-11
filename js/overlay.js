@@ -102,7 +102,7 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 	this.drawHud = function(itemHint, message, bitscore, roomsExplored, roomsInTotal, story, fps) {
 		resize();
 		if (story.startScreen) {
-			printLine("CHAPTER 12", gameWindow.height / 2 - 60, 32);
+			printLine("EPISODE 12", gameWindow.height / 2 - 60, 32);
 			printLine("by matthew gatland", gameWindow.height / 2, 32);
 		}
 
