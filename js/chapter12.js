@@ -108,15 +108,15 @@ var Cerulean = function () {
 					audioUtil.playIntro();
 					if (!testing) {
 						messages.addMessage("", 2, null, true); //hardcoded Chapter 12, by Matthew Gatland
-						messages.addMessage("Troublemaker.", 2);
+						messages.addMessage("Do you know what the aliens call you now?", 2);
 					}
-					messages.addMessage("That's what the aliens call you.", 2, function () {_this.startScreen = false;});
+					messages.addMessage("The Troublemaker.", 2, function () {_this.startScreen = false;});
 					messages.addMessage("Roaming the stars, upsetting the balance.", 3);
 					messages.addMessage("Of course it took a human to catch you.", 3);
 					messages.addMessage("", 1);
 					messages.addMessage("I asked MI6 to scan your phone.", 3);
 					messages.addMessage("We took your location history.", 3);
-					messages.addMessage("My starpervs are opening gateways to those coordinates.", 4);
+					messages.addMessage("My starpervs are opening gates to those coordinates.", 4);
 					messages.addMessage("Soon, Britain's armies will invade those worlds.", 3);
 					messages.addMessage("The UK will have colonies again!", 3);
 					messages.addMessage("All thanks to you.", 3);
@@ -434,9 +434,6 @@ var Cerulean = function () {
 			if (this.lastRoom) this.lastRoom.cleanUp();
 			this.room = this.home;
 			this.lastRoom = null;
-			//prison hacks
-			this.room.locked = true;
-			this.room.items[0].reset();
 		}
 
 		this.resetCharge = function (audioUtil) {
@@ -552,6 +549,9 @@ var Cerulean = function () {
 					track("respawned", ""+this.roomsExplored);
 					this.respawn();
 					resetGuards = true;
+					//prison hacks
+					this.room.locked = true;
+					this.room.items[0].reset();
 				}
 
 				if (this.health < this.maxHealth) {
@@ -790,10 +790,10 @@ var Cerulean = function () {
 			player.story.hackedFirstRoom(player, audioUtil);
 			player.room.flashing = 20;
 		}
-		var controlPanel = new Item("powerbox",
+		var controlPanel = new Item("doorcontrols",
 			firstRoom.pos.clone().multiply(GameConsts.tileSize).moveXY(GameConsts.wallWidth, GameConsts.wallWidth), 
 			true, 
-			"Hold [space] to break power box",
+			"Hold [space] to break door controls",
 			"You unlocked the door.",
 			onHackFirstRoom);
 		firstRoom.items.push(controlPanel);
@@ -817,7 +817,7 @@ var Cerulean = function () {
 			var controlPanel = new Item("portal",
 				room.getCenter().multiply(GameConsts.tileSize), 
 				true, 
-				"Hold [space] to break the portal",
+				"Hold [space] to break the star gate",
 				"It's broken",
 				onHackPortal);
 			room.items.push(controlPanel);
