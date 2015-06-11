@@ -91,7 +91,6 @@ var Cerulean = function () {
 					messages.addMessage("Troublemaker.", 2);
 					messages.addMessage("Wherever you run, Britain will find you.", 3,
 						function () {
-						console.log("show end screen");
 						_this.endScreen = true;
 					});
 					messages.addMessage("We have power you can't imagine!", 2);
