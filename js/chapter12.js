@@ -68,6 +68,8 @@ var Cerulean = function () {
 		this.mode = "intro2"; 
 		this.shaking = false;
 		this.won = false;
+		this.startScreen = true;
+		this.endScreen = false;
 
 		var sec = 60; //just a constant
 
@@ -107,18 +109,18 @@ var Cerulean = function () {
 			} else if (this.mode === "intro2") {
 				storyFrame++;
 				if (storyFrame == 0.5*sec) {
-					messages.addMessage("(Use arrow keys to move)", 2);
+					messages.addMessage("", 2, null, true); //hardcoded Chapter 12, by Matthew Gatland
 					messages.addMessage("Troublemaker.", 2);
-					messages.addMessage("That's what they call you.", 2);
-					messages.addMessage("Roaming the stars, causing chaos,", 4);
-					messages.addMessage("And revealing all our human weaknesses.", 2);
+					messages.addMessage("That's what they call you.", 2, function () {_this.startScreen = false;});
+					messages.addMessage("Roaming the stars, causing chaos,", 3);
+					messages.addMessage("And revealing all our human weaknesses.", 3);
 					messages.addMessage("I had to pull you home.", 3);
 					messages.addMessage("", 1);
-					messages.addMessage("I asked MI6 to scan your phone.", 2);
-					messages.addMessage("Impressive location history.", 5);
+					messages.addMessage("I asked MI6 to scan your phone.", 3);
+					messages.addMessage("Impressive location history.", 3);
 					messages.addMessage("My starpervs are now opening gateways", 3);
 					messages.addMessage("To every world you visited.", 3);
-					messages.addMessage("Soon, Britain's armies will invade them all.", 4);
+					messages.addMessage("Soon, Britain's armies will invade them all.", 3);
 					messages.addMessage("The United Kingdom will rule through space!", 3);
 					messages.addMessage("All thanks to you.", 3);
 					messages.addMessage("Anyway, enough chit chat.", 2);

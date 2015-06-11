@@ -409,13 +409,11 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 		hudOverlay.clear();
 
 		var showGame = true;
-		if (player.story.endScreen) {
+		if (player.story.endScreen || player.story.startScreen) {
 			showGame = false;
 		}
 
-		if(player.story.mode != "intro") {
-			hudOverlay.drawHud(player.itemHint, player.message, player.items, player.roomsExplored, rooms.length, fps);
-		}
+		hudOverlay.drawHud(player.itemHint, player.message, player.items, player.roomsExplored, rooms.length, player.story, fps);
 
 		flickerCounter ++;
 		if (flickerCounter == 4) flickerCounter = 0;

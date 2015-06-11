@@ -81,34 +81,36 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 		if (canvas2.height != gameWindow.height) canvas2.height = gameWindow.height;
 	}
 
-	this.drawHud = function(itemHint, message, bitscore, roomsExplored, roomsInTotal, fps) {
+	var printLine = function (msg, y, fontSize) {
+		ctx2.font = fontSize + 'px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace';
+		var width = ctx2.measureText(msg).width;
+		var x = gameWindow.width / 2 - width / 2;
+		ctx2.fillStyle = "rgba(0, 0, 0, 0.7)";
+		ctx2.fillRect(x, y-fontSize, width, fontSize+6);
 		ctx2.fillStyle = "#5DE100";
-		ctx2.font = '32px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace';
-		//ctx2.fillText("FPS: " + fps, 850, gameWindow.height - 32);
-		
-		if (message) {
-			var width = ctx2.measureText(message.msg).width;
-			var x = gameWindow.width / 2 - width / 2;
-			var y = gameWindow.height /4 * 3;
-			if (message.big) {
-				y = gameWindow.height / 2;
-			}
-			ctx2.fillStyle = "rgba(0, 0, 0, 0.7)";
-			ctx2.fillRect(x, y-32, width, 40);
-			ctx2.fillStyle = "#5DE100";
-			ctx2.fillText(message.msg, x, y);
+		ctx2.fillText(msg, x, y);
+	}
 
+	this.drawHud = function(itemHint, message, bitscore, roomsExplored, roomsInTotal, story, fps) {
+		resize();
+		if (story.startScreen) {
+			printLine("CHAPTER 12", gameWindow.height / 2 - 60, 32);
+			printLine("by matthew gatland", gameWindow.height / 2, 32);
+		}
+
+		if (message) {
+			
+			if (message.big) {
+				var y = gameWindow.height / 2;
+			} else {
+				y = gameWindow.height /4 * 3;	
+			}
+			printLine(message.msg, y, 32);
 		}
 		
 		if (itemHint) {
-			ctx2.font = '22px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace';
-			var width = ctx2.measureText(itemHint).width;
-			var x = gameWindow.width / 2 - width / 2;
 			var y = gameWindow.height / 2 + 64;
-			ctx2.fillStyle = "rgba(0, 0, 0, 0.7)";
-			ctx2.fillRect(x, y-22, width, 28);
-			ctx2.fillStyle = "#5DE100";
-			ctx2.fillText(itemHint, x, y);
+			printLine(itemHint, y, 22);
 		}
 		
 	}
