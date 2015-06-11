@@ -118,8 +118,8 @@ var Cerulean = function () {
 					messages.addMessage("", 1);
 					messages.addMessage("I had MI6 scan your phone.", 3);
 					messages.addMessage("We took your location history.", 3);
-					messages.addMessage("My starpervs are opening gates to those coordinates.", 4);
-					messages.addMessage("Soon, Britain's armies will invade those worlds.", 3);
+					messages.addMessage("My starpervs are opening gates to those worlds.", 4);
+					messages.addMessage("Soon, Britain's armies will invade them all.", 3);
 					messages.addMessage("The UK will have colonies again!", 3);
 					messages.addMessage("All thanks to you.", 3);
 					messages.addMessage("Anyway, enough chit chat.", 2);
