@@ -287,6 +287,7 @@ var Cerulean = function () {
 		}
 
 		this.update = function (player, audioUtil) {
+			if (this.state === "frozen") return;
 			if (resetGuards) {
 				this.state = "search";
 				this.speed = 1;
@@ -796,7 +797,7 @@ var Cerulean = function () {
 				console.log("Hacked a portal");
 				audioUtil.playGotItem(1);
 				portalsClosed++;
-				if (portalsClosed >= 5) {
+				if (portalsClosed >= 5 || (testing && portalsClosed >= 2)) {
 					player.story.won = true; //hacks omg
 				}
 				loudRoom = player.room;
@@ -856,6 +857,11 @@ var Cerulean = function () {
 			player.story.update(messages, player, audioUtil);
 
 			rooms.forEach(function (room) {
+				if (player.story.mode === "won") {
+					room.enemies.forEach(function (enemy) {
+						enemy.state = "frozen";
+					});
+				};
 				room.update(player, audioUtil);
 			});
 
