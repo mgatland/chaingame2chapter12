@@ -430,7 +430,7 @@ var Cerulean = function () {
 
 		}
 
-		this.attack = function (roomToAttack, audioUtil) {
+/*		this.attack = function (roomToAttack, audioUtil) {
 			var player = this;
 			roomToAttack.flashing = Math.floor(Math.max(3, 25 * player.attackCharge / player.maxAttackCharge));
 
@@ -451,8 +451,8 @@ var Cerulean = function () {
 			//longer if we cleared a room
 			if (liveEnemiesAfter == 0 && liveEnemiesBefore > 0) duration += 0.5;
 			audioUtil.playerAttack(duration, gotKill);
-
 		}
+*/
 
 		this._updateAttackCharge = function (keyboard, audioUtil) {
 			if (this.health > 0) {
@@ -462,10 +462,6 @@ var Cerulean = function () {
 						this.attackCharge = this.attackChargeLimit;
 					}
 				} else {
-					if (this.attackCharge > 0) {
-						this.attack(this.room, audioUtil);
-						if (this.lastRoom) this.attack(this.lastRoom, audioUtil);
-					}
 					this.attackCharge = 0;
 				}
 			}
@@ -834,6 +830,7 @@ var Cerulean = function () {
 
 		var onHackFirstRoom = function (player) {
 			player.story.hackedFirstRoom(player, audioUtil);
+			player.room.flashing = 20;
 		}
 		var controlPanel = new Item(
 			firstRoom.getCenter().multiply(GameConsts.tileSize), 
@@ -850,6 +847,7 @@ var Cerulean = function () {
 				if (portalsClosed >= 5) {
 					player.story.won = true; //hacks omg
 				}
+				player.room.flashing = 40;
 			}
 			var controlPanel = new Item(
 				room.getCenter().multiply(GameConsts.tileSize), 
