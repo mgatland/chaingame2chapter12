@@ -82,18 +82,30 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 	}
 
 	this.drawHud = function(itemHint, message, bitscore, roomsExplored, roomsInTotal, fps) {
+		ctx2.fillStyle = "#5DE100";
 		ctx2.font = '32px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace';
 		ctx2.fillText("FPS: " + fps, 850, gameWindow.height - 32);
 		
 		if (message) {
 			var width = ctx2.measureText(message).width;
-			ctx2.fillText(message, gameWindow.width / 2 - width / 2, gameWindow.height /4 * 3);
+			var x = gameWindow.width / 2 - width / 2;
+			var y = gameWindow.height /4 * 3;
+			ctx2.fillStyle = "rgba(0, 0, 0, 0.7)";
+			ctx2.fillRect(x, y-32, width, 40);
+			ctx2.fillStyle = "#5DE100";
+			ctx2.fillText(message, x, y);
+
 		}
 		
 		if (itemHint) {
 			ctx2.font = '22px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace';
 			var width = ctx2.measureText(itemHint).width;
-			ctx2.fillText(itemHint, gameWindow.width / 2 - width / 2, gameWindow.height / 2 + 64);
+			var x = gameWindow.width / 2 - width / 2;
+			var y = gameWindow.height / 2 + 64;
+			ctx2.fillStyle = "rgba(0, 0, 0, 0.7)";
+			ctx2.fillRect(x, y-22, width, 28);
+			ctx2.fillStyle = "#5DE100";
+			ctx2.fillText(itemHint, x, y);
 		}
 		
 	}
