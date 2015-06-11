@@ -291,8 +291,10 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 					addRectWithCamera(vertices, colors, room.pos.x * gameConsts.tileSize + lineStart, y, lineWidth, 1, green, camera);
 				}
 			}
+		});
 
-			if (room != player.room && room != player.lastRoom) return;
+		rooms.forEach(function (room) {
+			//if (room != player.room && room != player.lastRoom) return;
 
 			room.items.forEach(function (item) {
 				if (item.special) {
@@ -378,7 +380,6 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 				}
 				addRectWithCamera(vertices, colors, shot.pos.x-5, shot.pos.y-5, 10, 10, color, camera);
 			});
-
 		});
 
 		//charging effects
