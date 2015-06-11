@@ -64,6 +64,7 @@ Pos.prototype.floor = function () {
 Pos.prototype.moveXY = function (x, y) {
     this.x += x;
     this.y += y;
+    return this;
 }
 //End of Pos.prototype
 

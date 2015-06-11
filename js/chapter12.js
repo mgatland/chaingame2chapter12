@@ -834,7 +834,7 @@ var Cerulean = function () {
 			player.room.flashing = 20;
 		}
 		var controlPanel = new Item("powerbox",
-			firstRoom.getCenter().multiply(GameConsts.tileSize), 
+			firstRoom.pos.clone().multiply(GameConsts.tileSize).moveXY(GameConsts.wallWidth, GameConsts.wallWidth), 
 			true, 
 			"Hold [space] to break power box",
 			"It's broken",
@@ -889,9 +889,6 @@ var Cerulean = function () {
 		var firstRoom = rooms[0];
 		player.setHome(firstRoom);
 		player.respawn();
-		player.pos.y -= Math.floor((firstRoom.size.y - 3) * GameConsts.tileSize / 2);
-		player.pos.x -= Math.floor((firstRoom.size.x - 3) * GameConsts.tileSize / 2);
-
 		firstRoom.lockDoors();
 
 		firstRoom.explored = true;
