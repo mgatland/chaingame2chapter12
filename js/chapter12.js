@@ -599,7 +599,8 @@ var Cerulean = function () {
 		}
 	}
 
-	var Item = function (pos, special, description, afterDescription, onCollected) {
+	var Item = function (name, pos, special, description, afterDescription, onCollected) {
+		this.name = name;
 		this.live = true;
 		this.canBeUsed = true;
 		this.pos = pos;
@@ -832,7 +833,7 @@ var Cerulean = function () {
 			player.story.hackedFirstRoom(player, audioUtil);
 			player.room.flashing = 20;
 		}
-		var controlPanel = new Item(
+		var controlPanel = new Item("powerbox",
 			firstRoom.getCenter().multiply(GameConsts.tileSize), 
 			true, 
 			"Hold [space] to break power box",
@@ -849,7 +850,7 @@ var Cerulean = function () {
 				}
 				player.room.flashing = 40;
 			}
-			var controlPanel = new Item(
+			var controlPanel = new Item("portal",
 				room.getCenter().multiply(GameConsts.tileSize), 
 				true, 
 				"Hold [space] to break the portal",

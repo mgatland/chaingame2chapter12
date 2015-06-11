@@ -128,11 +128,8 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 	  return shader;
 	}
 
-	function addLine(vertices, colors, startX, startY, length) {
-		var start = new Pos(startX, startY);
-		var endTarget = new Pos(gameWindow.width/2-8, gameWindow.height/2-8);
-
-		var angle = start.angleTo(endTarget);
+	function addLine(vertices, colors, startX, startY, length, angle, camera) {
+		var start = new Pos(startX - camera.pos.x, startY - camera.pos.y);
 		var end = start.clone();
 		end.moveAtAngle(angle, length);
 
@@ -210,6 +207,36 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 	var maxParticleSize = 60;
 	var maxParticleSpeed = 25;
 
+	var drawPortalFX = function (item, vertices, colors, camera) {
+		if (item.chargeParticles == undefined) {
+			item.chargeParticles = [];
+		}
+		if (!item.canBeUsed) {
+			item.chargeParticles.length = 0;
+		} else {
+			var attackPower = 0.2;
+			var particleSize = maxParticleSize * (attackPower/2+0.5);
+			var particleSpeed = maxParticleSpeed * attackPower * attackPower + 10;
+			var center = item.getCenter();
+			while (item.chargeParticles.length < maxChargeParticles * attackPower) {
+				var x = Math.random() * 400 - 200 + center.x;
+				var y = Math.random() * 400 - 200 + center.y;
+				item.chargeParticles.push(new Pos(x, y));
+			}
+			var end = center;
+			item.chargeParticles.forEach(function (pos) {
+				var angle = pos.angleTo(end);
+				if (pos.distanceTo(end) < particleSpeed + particleSize) {
+					pos.dead = true;
+				} else {
+					pos.moveAtAngle(angle, particleSpeed);
+					addLine(vertices, colors, pos.x, pos.y, particleSize, angle, camera);
+				}
+			});
+			item.chargeParticles = item.chargeParticles.filter(function (part) {return !part.dead});
+			}
+	}
+
 	this.drawGame = function (vertices, colors, player, companion, rooms, camera, fps) {
 		rooms.forEach(function (room) {
 
@@ -274,6 +301,9 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 				} else {
 					addRectWithCamera(vertices, colors, item.pos.x-2, item.pos.y-2, 4, 4, green, camera);
 				}
+
+				if (item.name === "portal") drawPortalFX(item, vertices, colors, camera);
+
 			});
 
 			//Draw companion attack effects in the correct room
@@ -350,32 +380,8 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 				}
 				addRectWithCamera(vertices, colors, shot.pos.x-5, shot.pos.y-5, 10, 10, color, camera);
 			});
-		});
 
-		//charging effects
-		if (player.attackCharge == 0) {
-			chargeParticles.length = 0;
-		} else {
-			var attackPower = player.attackCharge / player.maxAttackCharge;
-			var particleSize = maxParticleSize * (attackPower/2+0.5);
-			var particleSpeed = maxParticleSpeed * attackPower * attackPower + 10;
-			while (chargeParticles.length < maxChargeParticles * attackPower) {
-				var x = Math.random() * gameWindow.width;
-				var y = Math.random() * gameWindow.height;
-				chargeParticles.push(new Pos(x, y));
-			}
-			var end = new Pos(gameWindow.width/2, gameWindow.height/2);
-			chargeParticles.forEach(function (pos) {
-				var angle = pos.angleTo(end);
-				if (pos.distanceTo(end) < particleSpeed + particleSize) {
-					pos.dead = true;
-				} else {
-					pos.moveAtAngle(angle, particleSpeed);
-					addLine(vertices, colors, pos.x, pos.y, particleSize);
-				}
-			});
-			chargeParticles = chargeParticles.filter(function (part) {return !part.dead});
-			}
+		});
 
 		//draw player
 		var playerColor = (player.invlunerableTime > 0 && flicker) ? black : green;

@@ -52,6 +52,7 @@ Pos.prototype.moveAtAngle = function (angle, speed) {
     var ySpeed = (speed * -Math.cos(3.14159 / 180 * angle));
     this.x += xSpeed;
     this.y += ySpeed;
+    return this;
 }
 
 Pos.prototype.floor = function () {
