@@ -111,16 +111,15 @@ var Cerulean = function () {
 						messages.addMessage("", 2, null, true); //hardcoded Chapter 12, by Matthew Gatland
 						messages.addMessage("Troublemaker.", 2);
 					}
-					messages.addMessage("That's what they call you.", 2, function () {_this.startScreen = false;});
+					messages.addMessage("That's what the aliens call you.", 2, function () {_this.startScreen = false;});
 					messages.addMessage("Roaming the stars, upsetting the balance.", 3);
-					messages.addMessage("You're lucky I pulled you home.", 3);
+					messages.addMessage("Of course it took a human to catch you.", 3);
 					messages.addMessage("", 1);
 					messages.addMessage("I asked MI6 to scan your phone.", 3);
-					messages.addMessage("Impressive location history.", 3);
-					messages.addMessage("My starpervs are now opening gateways", 3);
-					messages.addMessage("To every world you visited.", 3);
-					messages.addMessage("Soon, Britain's armies will invade them all.", 3);
-					messages.addMessage("The United Kingdom will rise through space!", 3);
+					messages.addMessage("We took your location history.", 3);
+					messages.addMessage("My starpervs are opening gateways to those coordinates.", 4);
+					messages.addMessage("Soon, Britain's armies will invade those worlds.", 3);
+					messages.addMessage("The UK will have colonies again!", 3);
 					messages.addMessage("All thanks to you.", 3);
 					messages.addMessage("Anyway, enough chit chat.", 2);
 					messages.addMessage("I have wars to plan.", 2);
@@ -438,7 +437,7 @@ var Cerulean = function () {
 			this.lastRoom = null;
 			//prison hacks
 			this.room.locked = true;
-			this.room.items[0].canBeUsed = true;
+			this.room.items[0].reset();
 		}
 
 		this.resetCharge = function (audioUtil) {
@@ -693,6 +692,7 @@ var Cerulean = function () {
 		this.pos = pos;
 		this.special = special ? true : false;
 		this.description = description;
+		this.beforeDescription = description;
 		this.afterDescription = afterDescription;
 		if (this.special) {
 			this.size = new Pos(32, 32);
@@ -706,6 +706,11 @@ var Cerulean = function () {
 			var y = Math.floor(this.pos.y + this.size.y / 2);
 			return new Pos(x, y);
 		};
+
+		this.reset = function () {
+			this.canBeUsed = true;
+			this.description = this.beforeDescription + " (again)";
+		}
 
 		this.update = function (player, audioUtil) {
 			/*if (player) {
