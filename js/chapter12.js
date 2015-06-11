@@ -68,7 +68,8 @@ var Cerulean = function () {
 
 	var Story = function (specialItems) {
 
-		this.mode = "intro"; //cannot pass through doorways, do not show HUD.
+		//"intro" - cannot pass through doorways, do not show HUD.
+		this.mode = "intro2"; 
 		this.shaking = false;
 
 		var sec = 60; //just a constant
@@ -92,13 +93,10 @@ var Cerulean = function () {
 				if (storyFrame == 0.5*sec) {
 					messages.addMessage("Hold space to charge", 1);
 				}
-				if (player.room.countEnemies() === 0) {
-					this.clearedFirstRoom(player, audioUtil);
-				}
 			} else if (this.mode === "game1") {
 				if (storyFrame == 0) {
-					messages.clearMessages();
-					player.room.messages.length = 0; //HACK: delete the intro text
+					//messages.clearMessages();
+					//player.room.messages.length = 0; //HACK: delete the intro text
 				}
 				storyFrame++;
 				if (storyFrame == 2*sec) {
@@ -267,23 +265,14 @@ var Cerulean = function () {
 			//if (amount == 4) messages.addMessage("Justin: I must have woken up the defence system.");
 		}
 
-		this.gotFirstAttackItem = function (player, audioUtil) {
-			if (this.mode == "intro") {
-				this.mode = "intro2";
-				storyFrame = 0;
-				player.canAttack = true;
-				player.canUseDoors = true;
-				player.room.spawnTowers();
-				audioUtil.playGotItem();
-			}
-		}
-
-		this.clearedFirstRoom = function (player, audioUtil) {
-			if (this.mode === "intro2") {
+		this.hackedFirstRoom = function (player, audioUtil) {
+			if (this.mode == "intro2") {
 				this.mode = "game1";
 				storyFrame = 0;
-				this.shaking = true;
-				audioUtil.playIntro();
+				//player.canAttack = true;
+				player.canUseDoors = true;
+				//player.room.spawnTowers();
+				audioUtil.playGotItem();
 			}
 		}
 
@@ -477,6 +466,7 @@ var Cerulean = function () {
 	var Player = function () {
 		extend(this, humanMixin);
 
+		var _this = this;
 		this.roomsExplored = 0;
 
 		this.invlunerableTime = 0;
@@ -666,6 +656,22 @@ var Cerulean = function () {
 			if (this.roomsExplored > roomsPreviouslyExplored) {
 
 			}
+
+			this.itemHint = null;
+			var itemDist = 999999;
+			this.canAttack = false;
+			this.room.items.forEach(function (item) {
+				if (item.getCenter().distanceTo(_this.getCenter()) < item.size.x / 2 + _this.size.x + 20) {
+					if (_this.attackCharge >= _this.attackChargeLimit) {
+						item.activate(_this);
+					} else {
+						_this.itemHint = item.description;
+						if (item.canBeUsed) {
+							_this.canAttack = true;
+						}
+					}
+				}
+			});
 		}
 
 		this.hit = function (audioUtil) {
@@ -690,6 +696,7 @@ var Cerulean = function () {
 			var multi = enemy.stunned ? 2 : 1;
 			return multi * Math.floor(100 * this.attackCharge / this.maxAttackCharge - dist/10);
 		}
+
 	}
 
 	var Shot = function (pos, room, angle) {
@@ -732,20 +739,29 @@ var Cerulean = function () {
 		}
 	}
 
-	var Item = function (pos, special) {
+	var Item = function (pos, special, description, afterDescription, onCollected) {
 		this.live = true;
+		this.canBeUsed = true;
 		this.pos = pos;
 		this.special = special ? true : false;
+		this.description = description;
+		this.afterDescription = afterDescription;
 		if (this.special) {
 			this.size = new Pos(32, 32);
 		} else {
 			this.size = new Pos(2, 2);
 		}
-		this.onCollected = null;
+		this.onCollected = onCollected;
+
+		this.getCenter = function () {
+			var x = Math.floor(this.pos.x + this.size.x / 2);
+			var y = Math.floor(this.pos.y + this.size.y / 2);
+			return new Pos(x, y);
+		};
 
 		this.update = function (player, audioUtil) {
-			if (player) {
-				var distance = this.pos.distanceTo(player.getCenter());
+			/*if (player) {
+				var distance = this.getCenter().distanceTo(player.getCenter());
 				if (distance < 128 && !special && player.canCollectGreenDots) { //normal items are sucked up
 					var angle = this.pos.angleTo(player.getCenter());
 					var speed = 6 * (128 - distance) / 128;
@@ -764,11 +780,19 @@ var Cerulean = function () {
 						audioUtil.playerCollectedBit();
 					}
 				}
-			}
+			}*/
 		};
+
+		this.activate = function (player) {
+			this.canBeUsed = false;
+			this.description = this.afterDescription;
+			if (this.onCollected) {
+				this.onCollected(player);
+			}
+		}
 	}
 
-	var Enemy = function (pos, room, type) {
+	var Enemy = function (pos, room, type, callback) {
 		this.pos = pos;
 		this.room = room;
 		this.dest = null;
@@ -943,13 +967,17 @@ var Cerulean = function () {
 	var createSpecialItems = function (rooms, cells, audioUtil) {
 		var firstRoom = rooms[0];
 		firstRoom.special = true;
-		var attackItem = new Item(firstRoom.getCenter().multiply(GameConsts.tileSize), true);
-		attackItem.pos.x += 16;
-		attackItem.pos.y += 16;
-		attackItem.onCollected = function (player) {
-			player.story.gotFirstAttackItem(player, audioUtil);
+
+		var onHackFirstRoom = function (player) {
+			player.story.hackedFirstRoom(player, audioUtil);
 		}
-		firstRoom.items.push(attackItem);
+		var controlPanel = new Item(
+			firstRoom.getCenter().multiply(GameConsts.tileSize), 
+			true, 
+			"Hold [space] to break power box",
+			"It's broken",
+			onHackFirstRoom);
+		firstRoom.items.push(controlPanel);
 
 		return null;
 /*		var itemCollectorRoom = findRoomNear(58, 58, rooms, cells);

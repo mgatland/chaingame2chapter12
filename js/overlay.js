@@ -90,9 +90,10 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 		if (canvas2.height != gameWindow.height) canvas2.height = gameWindow.height;
 	}
 
-	this.drawHud = function(bitscore, roomsExplored, roomsInTotal, fps) {
+	this.drawHud = function(itemHint, bitscore, roomsExplored, roomsInTotal, fps) {
 		ctx2.font = '32px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace';
-		if (bitscore > 0) ctx2.fillText("BITSCORE: " + bitscore, 40, gameWindow.height - 32);
+		//if (bitscore > 0) ctx2.fillText("BITSCORE: " + bitscore, 40, gameWindow.height - 32);
+		if (itemHint) ctx2.fillText(itemHint, 40, gameWindow.height - 32);
 		//ctx2.fillText("ROOMS EXPLORED: " + roomsExplored + " OF " + roomsInTotal, 350, gameWindow.height - 32);
 		ctx2.fillText("FPS: " + fps, 850, gameWindow.height - 32);
 	}

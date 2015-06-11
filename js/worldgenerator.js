@@ -220,17 +220,15 @@ var WorldGenerator = function (gameConsts, Enemy) {
 		return neighbours;
 	}
 
-	var spawnTower = function (x, y, room) {
+	var spawnTowerInternal = function (x, y, room) {
 		var pos = new Pos(x * gameConsts.tileSize, y * gameConsts.tileSize);
 		var tower = new Enemy(pos, room, 255);
 		room.enemies.push(tower);
 	}
 
-	Room.prototype.spawnTowers = function () {
-		spawnTower(this.pos.x + 1, this.pos.y + 1, this);
-		spawnTower(this.pos.x + 1, this.pos.y + this.size.y - 2, this);
-		spawnTower(this.pos.x + this.size.x - 2, this.pos.y + this.size.y - 2, this);
-		spawnTower(this.pos.x + this.size.x - 2, this.pos.y + 1, this);
+	Room.prototype.spawnTower = function () {
+		spawnTowerInternal(Math.floor(this.pos.x + this.size.x/2 - 1),
+			Math.floor(this.pos.y + this.size.y/2), this);
 	}
 
 	Room.prototype.getPathTo = function (destRoom) {
@@ -395,7 +393,7 @@ var WorldGenerator = function (gameConsts, Enemy) {
 	var rooms = [];
 	var filledCells = {};
 
-	this.addRoom = function(x, y, width, height) {
+	this.addRoom = function(x, y, width, height, type) {
 		x = x * 3;
 		y = y * 3;
 		width *= 3;
@@ -428,6 +426,10 @@ var WorldGenerator = function (gameConsts, Enemy) {
 		}).forEach(function (room) {
 			addDoorsBetween(newRoom, room, Dir.DOWN);
 		});
+
+		if (type==="tele") {
+			newRoom.spawnTower();
+		}
 	}
 
 	this.generate = function () {
@@ -435,24 +437,24 @@ var WorldGenerator = function (gameConsts, Enemy) {
 
 		//right hand side
 		this.addRoom(13, 9, 8, 1); //right hall
-		this.addRoom(17, 6, 4, 3); //top right goal
+		this.addRoom(17, 6, 4, 3, "tele"); //top right goal
 		this.addRoom(16, 10, 2, 2); //lower right first room
 		this.addRoom(18, 10, 3, 3); //lower right second room
-		this.addRoom(17, 13, 3, 3); //lower right goal
+		this.addRoom(17, 13, 3, 3, "tele"); //lower right goal
 
 		//lower left
 		this.addRoom(10, 11, 1, 3); //down hall
 		this.addRoom(6, 14, 5, 1); //down left hall
 		this.addRoom(7, 15, 3, 2); //room below down left hall
-		this.addRoom(3, 11, 3, 4); //down left goal room
+		this.addRoom(3, 11, 3, 4, "tele"); //down left goal room
 
 		//upper
 		this.addRoom(11, 6, 1, 2); //up hall
-		this.addRoom(8, 3, 5, 3); //up goal room	
+		this.addRoom(8, 3, 5, 3, "tele"); //up goal room	
 
 		//uppper left
 		this.addRoom(3, 5, 5, 1); //hall from up goal to up left goal
-		this.addRoom(2, 6, 4, 3); //left goal room	
+		this.addRoom(2, 6, 4, 3, "tele"); //left goal room	
 		this.addRoom(4, 9, 1, 2); //hall from up left goal to down left goal
 
 		return {rooms:rooms, cells: filledCells};

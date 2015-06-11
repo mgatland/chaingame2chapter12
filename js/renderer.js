@@ -215,7 +215,7 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 		hudOverlay.clear();
 
 		if(player.story.mode != "intro") {
-			hudOverlay.drawHud(player.items, player.roomsExplored, rooms.length, fps);
+			hudOverlay.drawHud(player.itemHint, player.items, player.roomsExplored, rooms.length, fps);
 		}
 
 		flickerCounter ++;
@@ -296,9 +296,9 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 
 			room.items.forEach(function (item) {
 				if (item.special) {
-					addRectWithCamera(vertices, colors, item.pos.x-16, item.pos.y-16, 32, 32, red, camera);
-					addRectWithCamera(vertices, colors, item.pos.x-15, item.pos.y-15, 30, 30, green, camera);
-					addRectWithCamera(vertices, colors, item.pos.x-14, item.pos.y-14, 28, 28, black, camera);
+					addRectWithCamera(vertices, colors, item.pos.x, item.pos.y, 32, 32, red, camera);
+					addRectWithCamera(vertices, colors, item.pos.x+1, item.pos.y+1, 30, 30, green, camera);
+					addRectWithCamera(vertices, colors, item.pos.x+2, item.pos.y+2, 28, 28, black, camera);
 				} else {
 					addRectWithCamera(vertices, colors, item.pos.x-2, item.pos.y-2, 4, 4, green, camera);
 				}
