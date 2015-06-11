@@ -255,6 +255,7 @@ var Cerulean = function () {
 		this.state = "wait";
 		this.nextSearchRoom = null;
 		this.oldSearchRoom = null;
+		this.oldSearchRoom2 = null;
 		this.roomsSearched = 0;
 
 		this.startRoom = this.room;
@@ -272,13 +273,22 @@ var Cerulean = function () {
 
 		var guessNextRoom = function(currentRoom) {
 			var guesses = [];
+			var fallBack1 = null;
+			var fallBack2 = null;
 			currentRoom.doors.forEach(function (door) {
-				if (door.otherRoom != _this.oldSearchRoom && !door.otherRoom.locked) {
+				if (door.otherRoom == _this.oldSearchRoom2 && !door.otherRoom.locked) {
+					fallBack1 = door.otherRoom;
+				} else if (door.otherRoom == _this.oldSearchRoom && !door.otherRoom.locked) {
+					fallBack2 = door.otherRoom;
+				} else if (!door.otherRoom.locked) {
 					guesses.push(door.otherRoom);
 				}
 			});
 			if (guesses.length == 0) {
-				return _this.oldSearchRoom; //have to backtrack
+				if (fallBack1) return fallBack1; //have to backtrack
+				if (fallBack2) return fallBack2; //have to backtrack
+				console.log("Error: this should never happen.");
+				return currentRoom.doors[0].otherRoom;
 			} else {
 				return guesses[Math.floor(Math.random() * guesses.length)];	
 			}
@@ -293,6 +303,7 @@ var Cerulean = function () {
 				this.pos = this.startPos.clone();
 				this.room = this.startRoom;
 				this.oldSearchRoom = this.room;
+				this.oldSearchRoom2 = null;
 				this.nextSearchRoom = null;
 			}
 			if (this.room == player.room) {
@@ -322,6 +333,7 @@ var Cerulean = function () {
 					//we just lost them
 					this.nextSearchRoom = player.room;
 					this.oldSearchRoom = this.room;
+					this.oldSearchRoom2 = null;
 					this.roomsSearched = 0;
 					this.state = "search";
 					this.speed = 3;
@@ -329,7 +341,10 @@ var Cerulean = function () {
 
 				if (this.state === "search") {
 					if (this.room == this.nextSearchRoom) {
-						this.roomsSearched++;
+						if (this.room.doors.length > 1) {
+							//closests don't fatigue us, other rooms do.
+							this.roomsSearched++;
+						}
 						if (this.roomsSearched > 2) {
 							//getting tired.
 							this.speed = 2;
@@ -340,6 +355,7 @@ var Cerulean = function () {
 						//guess where she went next
 						this.nextSearchRoom = guessNextRoom(this.room);
 						//never backtrack to here
+						this.oldSearchRoom2 = this.oldSearchRoom;
 						this.oldSearchRoom = this.room;
 					} else {
 						//go to next room
@@ -365,6 +381,7 @@ var Cerulean = function () {
 						this.state = "search";
 					} else {
 						this.oldSearchRoom = this.room; //to avoid backtracking at the end
+						this.oldSearchRoom2 = null;
 						var path = this._pathIsDirty(this.nextSearchRoom) ? this.room.getPathTo(this.nextSearchRoom) : oldPath;
 						oldPath = path;
 						oldPathEnd = this.nextSearchRoom;
