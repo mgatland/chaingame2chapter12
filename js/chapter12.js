@@ -276,6 +276,11 @@ var Cerulean = function () {
 				this._moveTowards(player.pos, "horizontal");
 				this._moveTowards(player.pos, "vertical");
 			} else {
+				if (loudRoom != null) {
+					this.state = "goto";
+					this.speed = 3;
+					this.nextSearchRoom = loudRoom;
+				}
 				if (this.state === "wait") {
 					//nothing
 				} else if (this.state === "see") {
@@ -320,18 +325,22 @@ var Cerulean = function () {
 					}
 				}
 
-				/*/unused
 				if (this.state === "goto") {
-					var path = this._pathIsDirty(this.nextSearchRoom) ? this.room.getPathTo(this.nextSearchRoom) : oldPath;
-					oldPath = path;
-					oldPathEnd = player.room;
-					oldPathStart = this.room;
+					if (this.room === this.nextSearchRoom) {
+						this.state = "search";
+					} else {
+						this.oldSearchRoom = this.room; //to avoid backtracking at the end
+						var path = this._pathIsDirty(this.nextSearchRoom) ? this.room.getPathTo(this.nextSearchRoom) : oldPath;
+						oldPath = path;
+						oldPathEnd = this.nextSearchRoom;
+						oldPathStart = this.room;
 
-					var doorToUse = this.room.doors.filter(function (door) {
-						return door.otherRoom === path[0];
-					}).pop();
-					moveToDoorway(doorToUse);					
-				}*/
+						var doorToUse = this.room.doors.filter(function (door) {
+							return door.otherRoom === path[0];
+						}).pop();
+						moveToDoorway(doorToUse);						
+					}
+				}
 			}
 			this._updateCurrentRoom();
 		};
@@ -748,6 +757,7 @@ var Cerulean = function () {
 				if (portalsClosed >= 5) {
 					player.story.won = true; //hacks omg
 				}
+				loudRoom = player.room;
 				player.room.flashing = 40;
 			}
 			var controlPanel = new Item("portal",
@@ -764,6 +774,7 @@ var Cerulean = function () {
 
 	//hasty globals
 	var portalsClosed = 0;
+	var loudRoom = null;
 
 	var start = function (shaders, audioUtil, startTime) {
 		var gameWindow = new GameWindow();
@@ -796,7 +807,6 @@ var Cerulean = function () {
 		var messages = new Messages(player, audioUtil, renderer.overlay);
 
 		var update = function () {
-
 			audioUtil.update();
 			messages.update();
 
@@ -805,9 +815,8 @@ var Cerulean = function () {
 			rooms.forEach(function (room) {
 				room.update(player, audioUtil);
 			});
-			//player.room.update(player, audioUtil);
-			//if (player.lastRoom) player.lastRoom.update(player, audioUtil);
 
+			loudRoom = null;
 			player.update(keyboard, audioUtil, messages);
 
 			keyboard.update();
