@@ -5,6 +5,10 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 	var lineHeight = 20;
 	var minimumWidthForText = 88;
 
+	//duplicate values from renderer
+	var red = "#FF0F0F";
+	var green = "#5DE100";
+
 	this.clear = function () {
 		ctx2.clearRect(0, 0, gameWindow.width, gameWindow.height);
 	}
@@ -81,13 +85,17 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 		if (canvas2.height != gameWindow.height) canvas2.height = gameWindow.height;
 	}
 
-	var printLine = function (msg, y, fontSize) {
+	var printLine = function (msg, y, fontSize, color) {
 		ctx2.font = fontSize + 'px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace';
 		var width = ctx2.measureText(msg).width;
 		var x = gameWindow.width / 2 - width / 2;
-		ctx2.fillStyle = "rgba(0, 0, 0, 0.7)";
-		ctx2.fillRect(x, y-fontSize, width, fontSize+6);
-		ctx2.fillStyle = "#5DE100";
+		if (color === red) {
+			ctx2.fillStyle = "rgba(0, 0, 0, 0.95)";	
+		} else {
+			ctx2.fillStyle = "rgba(0, 0, 0, 0.7)";
+		}
+		ctx2.fillRect(x, y-fontSize, width, fontSize+8);
+		ctx2.fillStyle = color ? color : green;
 		ctx2.fillText(msg, x, y);
 	}
 
@@ -99,13 +107,14 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 		}
 
 		if (message) {
-			
 			if (message.big) {
 				var y = gameWindow.height / 2;
+				var color = green;
 			} else {
 				y = gameWindow.height /4 * 3;	
+				color = red;
 			}
-			printLine(message.msg, y, 32);
+			printLine(message.msg, y, 32, color);
 		}
 		
 		if (itemHint && !story.startScreen && !story.endScreen) {

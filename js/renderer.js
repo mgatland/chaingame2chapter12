@@ -308,29 +308,6 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 
 			});
 
-			/*//Draw companion attack effects in the correct room
-			if (companion && companion.room == room) {
-				var wandColor = green;
-				//Draw attack beam
-				if (companion.stunTarget && companion.stunTarget.live) {
-					var pos = companion.getCenter();
-					var end = companion.stunTarget.getCenter();
-					var angle = pos.angleTo(end);
-					var distanceToEnd = pos.distanceTo(end);
-					var stepDist = 7;
-
-					wandOffset++;
-					if (wandOffset == 7) wandOffset = 0;
-
-					pos.moveAtAngle(angle, wandOffset);
-					for (var i = 0; i < distanceToEnd; i+= stepDist) {
-						addRectWithCamera(vertices, colors, pos.x-2, pos.y-2, 4, 4, wandColor, camera);
-						addRectWithCamera(vertices, colors, pos.x-1, pos.y-1, 2, 2, black, camera);
-						pos.moveAtAngle(angle, stepDist);
-					}
-				}
-			}*/
-
 			room.enemies.forEach(function (enemy) {
 				var color = red;
 				addRectWithCamera(vertices, colors, enemy.pos.x, enemy.pos.y,
