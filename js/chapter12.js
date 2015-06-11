@@ -465,7 +465,7 @@ var Cerulean = function () {
 			}
 		}
 
-		this._updateMovement = function (keyboard) {
+		this._updateMovement = function (keyboard, frozen) {
 			if (this.health <= 0) return;
 
 			if (keyboard.isKeyDown(KeyEvent.DOM_VK_SPACE) && this.canAttack) {
@@ -487,24 +487,25 @@ var Cerulean = function () {
 
 			var oldPos = this.pos.clone();
 
-			if (right) {
-				this._moveInDir(Dir.RIGHT);
-			} else if (left) {
-				this._moveInDir(Dir.LEFT);
-			}
+			if (!frozen) {
+				if (right) {
+					this._moveInDir(Dir.RIGHT);
+				} else if (left) {
+					this._moveInDir(Dir.LEFT);
+				}
 
-			if (up) {
-				this._moveInDir(Dir.UP);
-			} else if (down) {
-				this._moveInDir(Dir.DOWN);
-			}
+				if (up) {
+					this._moveInDir(Dir.UP);
+				} else if (down) {
+					this._moveInDir(Dir.DOWN);
+				}
 
-			//If we're running into a wall, make an automove.
-			if (this.canUseDoors && !this.room.locked) {
-				if (oldPos.x == this.pos.x && (left || right)) this._autoMove("vertical");
-				if (oldPos.y == this.pos.y && (up || down)) this._autoMove("horizontal");
+				//If we're running into a wall, make an automove.
+				if (this.canUseDoors && !this.room.locked) {
+					if (oldPos.x == this.pos.x && (left || right)) this._autoMove("vertical");
+					if (oldPos.y == this.pos.y && (up || down)) this._autoMove("horizontal");
+				}	
 			}
-
 		}
 
 /*		this.attack = function (roomToAttack, audioUtil) {
@@ -585,7 +586,8 @@ var Cerulean = function () {
 		}
 
 		this.update = function (keyboard, audioUtil, messages) {
-			this._updateMovement(keyboard);
+			var frozen = (this.story.mode === "won");
+			this._updateMovement(keyboard, frozen);
 			this._updateAttackCharge(keyboard, audioUtil);
 			this._updateHealthAndShield();
 
@@ -595,23 +597,26 @@ var Cerulean = function () {
 
 			}
 
+			//update item interactions
 			this.itemHint = null;
 			var itemDist = 999999;
 			this.canAttack = false;
-			this.room.items.forEach(function (item) {
-				if (item.getCenter().distanceTo(_this.getCenter()) < item.size.x / 2 + _this.size.x / 2 + 10) {
-					if (_this.attackCharge >= _this.attackChargeLimit) {
-						item.activate(_this);
-					} else {
-						_this.itemHint = item.description;
-						if (item.canBeUsed) {
-							_this.canAttack = true;
+			if (!frozen) {
+				this.room.items.forEach(function (item) {
+					if (item.getCenter().distanceTo(_this.getCenter()) < item.size.x / 2 + _this.size.x / 2 + 10) {
+						if (_this.attackCharge >= _this.attackChargeLimit) {
+							item.activate(_this);
+						} else {
+							_this.itemHint = item.description;
+							if (item.canBeUsed) {
+								_this.canAttack = true;
+							}
 						}
 					}
-				}
-			});
+				});
+			}
 
-			if (this.story.mode==="won") {
+			if (frozen) {
 				this.teleBeamWidth += 0.20;
 			}
 		}
@@ -797,7 +802,7 @@ var Cerulean = function () {
 				console.log("Hacked a portal");
 				audioUtil.playGotItem(1);
 				portalsClosed++;
-				if (portalsClosed >= 5 || (testing && portalsClosed >= 2)) {
+				if (portalsClosed >= 5 || (testing && portalsClosed >= 1)) {
 					player.story.won = true; //hacks omg
 				}
 				loudRoom = player.room;
