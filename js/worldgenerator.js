@@ -451,6 +451,7 @@ var WorldGenerator = function (gameConsts, Enemy) {
 		this.addRoom(6, 14, 5, 1); //down left hall
 		this.addRoom(7, 15, 3, 2); //room below down left hall
 		this.addRoom(3, 11, 3, 4, "tele"); //down left goal room
+		this.addRoom(2, 11, 1, 1); //closet off the goal room
 
 		//upper
 		this.addRoom(11, 6, 1, 2); //up hall

@@ -86,7 +86,8 @@ var Cerulean = function () {
 			} else if (this.mode == "won") {
 				storyFrame++;
 				if (storyFrame == 0.5*sec) {
-					messages.addMessage("", 4);
+					messages.addMessage("", 2);
+					messages.addMessage("You ruined everything!", 2);
 					messages.addMessage("Wherever you run, Britain will find you.", 3,
 						function () {
 						_this.endScreen = true;
