@@ -458,8 +458,7 @@ var WorldGenerator = function (gameConsts, Enemy) {
 
 		//uppper left
 		this.addRoom(3, 5, 5, 1); //hall from up goal to up left goal
-		this.addRoom(3, 4, 1, 1); //hall closet 1
-		this.addRoom(7, 6, 1, 1); //hall closet 2
+		this.addRoom(3, 4, 1, 1); //hall closet
 		this.addRoom(2, 6, 4, 3, "tele"); //left goal room	
 		this.addRoom(4, 9, 1, 2); //hall from up left goal to down left goal
 
