@@ -343,6 +343,7 @@ var Cerulean = function () {
 
 		this.canUseDoors = true;
 		this.canAttack = false;
+		this.teleBeamWidth = 0;
 
 		this.story = null; //Set me externally! FIXME
 
@@ -531,6 +532,10 @@ var Cerulean = function () {
 					}
 				}
 			});
+
+			if (this.story.mode==="won") {
+				this.teleBeamWidth += 0.20;
+			}
 		}
 
 		this.hit = function (audioUtil) {

@@ -5,6 +5,8 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 	var black = {r: 0, g:0, b:0}
 	var red = {r: 1, b:0.06, g:0.06};
 	var green = {r:0.365, g:0.882, b:0};
+	var white = {r:215/255, g:221/255, b:0};
+	var brightWhite = {r:245/255, g:251/255, b:0};
 
 	container = document.getElementById('gamecontainer');
 	container.style.width = gameWindow.width;
@@ -386,6 +388,15 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 		//draw player
 		var playerColor = (player.invlunerableTime > 0 && flicker) ? black : green;
 		addRectWithCamera(vertices, colors, player.pos.x, player.pos.y, player.size.x, player.size.y, playerColor, camera);
+
+		if (player.teleBeamWidth > 0) {
+			var off = flicker ? 1 : -1;
+			var beamX = player.getCenter().x - player.teleBeamWidth / 2;
+			addRectWithCamera(vertices, colors, beamX+off, player.pos.y + player.size.y - gamescreen.height + off, player.teleBeamWidth, gamescreen.height, red, camera);
+			addRectWithCamera(vertices, colors, beamX, player.pos.y + player.size.y - gamescreen.height, player.teleBeamWidth, gamescreen.height, white, camera);
+			var beamX2 = player.getCenter().x - player.teleBeamWidth / 4;
+			addRectWithCamera(vertices, colors, beamX2, player.pos.y + player.size.y - gamescreen.height, player.teleBeamWidth/2, gamescreen.height, brightWhite, camera);
+		}
 
 		//Draw companion
 		if (companion) {
