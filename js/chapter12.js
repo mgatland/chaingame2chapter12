@@ -50,7 +50,7 @@ var Cerulean = function () {
 				var msg = messageQueue[0];
 				if (true) { //you can always add messages for now
 					messageQueue.shift();
-					audioUtil.playAddMessage();
+					if (msg.msg.length > 0) audioUtil.playAddMessage();
 					player.message = msg;
 					player.messageWaiting = false;
 					nextMessageDelay = msg.delay * fps;
@@ -111,19 +111,18 @@ var Cerulean = function () {
 					messages.addMessage("", 2, null, true); //hardcoded Chapter 12, by Matthew Gatland
 					messages.addMessage("Troublemaker.", 2);
 					messages.addMessage("That's what they call you.", 2, function () {_this.startScreen = false;});
-					messages.addMessage("Roaming the stars, causing chaos,", 3);
-					messages.addMessage("And revealing all our human weaknesses.", 3);
-					messages.addMessage("I had to pull you home.", 3);
+					messages.addMessage("Roaming the stars, upsetting the balance.", 3);
+					messages.addMessage("You're lucky I pulled you home.", 3);
 					messages.addMessage("", 1);
 					messages.addMessage("I asked MI6 to scan your phone.", 3);
 					messages.addMessage("Impressive location history.", 3);
 					messages.addMessage("My starpervs are now opening gateways", 3);
 					messages.addMessage("To every world you visited.", 3);
 					messages.addMessage("Soon, Britain's armies will invade them all.", 3);
-					messages.addMessage("The United Kingdom will rule through space!", 3);
+					messages.addMessage("The United Kingdom will rise through space!", 3);
 					messages.addMessage("All thanks to you.", 3);
 					messages.addMessage("Anyway, enough chit chat.", 2);
-					messages.addMessage("I have an invasion to plan.", 2);
+					messages.addMessage("I have wars to plan.", 2);
 					messages.addMessage("", 1);
 				}
 			}
