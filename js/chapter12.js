@@ -48,20 +48,16 @@ var Cerulean = function () {
 				nextMessageDelay--; //frame rate
 			} else if (messageQueue.length > 0) {
 				var msg = messageQueue[0];
-				if (msgRenderer.canAddMessage(player.room, msg.msg)) {
+				if (true) { //you can always add messages for now
 					messageQueue.shift();
 					audioUtil.playAddMessage();
-					if (!player.room.messages) player.room.messages = [];
-					player.room.messages.push(msg.msg);
+					player.message = msg.msg;
 					player.messageWaiting = false;
-
 					nextMessageDelay = msg.delay * fps;
 					if (msg.func) msg.func();
 				} else {
 					player.messageWaiting = true;
 				}
-
-
 			}
 		}
 	}

@@ -215,7 +215,7 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 		hudOverlay.clear();
 
 		if(player.story.mode != "intro") {
-			hudOverlay.drawHud(player.itemHint, player.items, player.roomsExplored, rooms.length, fps);
+			hudOverlay.drawHud(player.itemHint, player.message, player.items, player.roomsExplored, rooms.length, fps);
 		}
 
 		flickerCounter ++;

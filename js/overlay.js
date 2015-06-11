@@ -16,15 +16,6 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 	}
 
 	var fakeCamera = {pos: {x:0, y:0}};
-	this.canAddMessage = function (room, message) {
-		this.setContextForMessages();
-		var area = this.getMessageDrawingArea(room, fakeCamera);
-		if (area.width < minimumWidthForText) return false;
-		var maxLines = Math.floor(area.height / lineHeight);
-		var lines = this.getMessageLines(room.messages, area);
-		var newLines = this.getMessageLines([message], area);
-		return (lines.length + newLines.length < maxLines);
-	}
 
 	this.getMessageDrawingArea = function (room, camera) {
 		var pX = (room.pos.x * gameConsts.tileSize - camera.pos.x);
@@ -90,11 +81,20 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 		if (canvas2.height != gameWindow.height) canvas2.height = gameWindow.height;
 	}
 
-	this.drawHud = function(itemHint, bitscore, roomsExplored, roomsInTotal, fps) {
+	this.drawHud = function(itemHint, message, bitscore, roomsExplored, roomsInTotal, fps) {
 		ctx2.font = '32px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace';
-		//if (bitscore > 0) ctx2.fillText("BITSCORE: " + bitscore, 40, gameWindow.height - 32);
-		if (itemHint) ctx2.fillText(itemHint, 40, gameWindow.height - 32);
-		//ctx2.fillText("ROOMS EXPLORED: " + roomsExplored + " OF " + roomsInTotal, 350, gameWindow.height - 32);
 		ctx2.fillText("FPS: " + fps, 850, gameWindow.height - 32);
+		
+		if (message) {
+			var width = ctx2.measureText(message).width;
+			ctx2.fillText(message, gameWindow.width / 2 - width / 2, gameWindow.height /4 * 3);
+		}
+		
+		if (itemHint) {
+			ctx2.font = '22px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace';
+			var width = ctx2.measureText(itemHint).width;
+			ctx2.fillText(itemHint, gameWindow.width / 2 - width / 2, gameWindow.height / 2 + 64);
+		}
+		
 	}
 }
