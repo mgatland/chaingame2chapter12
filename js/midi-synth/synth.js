@@ -773,13 +773,14 @@ function AudioUtil() {
 		noteOff(note, start+duration);
 	}
 
-	this.playGotItem = function () {
+	this.playGotItem = function (type) {
 		var bpm = 240;
 		var beat = 60 / bpm;
 		var extra = beat / 10;
 		var now = audioContext.currentTime;
 		scheduleNote(60, now, beat*1 + extra);
-		scheduleNote(63, now+beat*1, beat*9 + extra);
+		var note2 = type == 1 ? 65 : 63;
+		scheduleNote(note2, now+beat*1, beat*4 + extra);
 	}
 
 	this.playIntro = function () {

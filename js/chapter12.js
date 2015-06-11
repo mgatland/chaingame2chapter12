@@ -844,6 +844,7 @@ var Cerulean = function () {
 		goalRooms.forEach(function (room) {
 			var onHackPortal = function (player) {
 				console.log("Hacked a portal");
+				audioUtil.playGotItem(1);
 				portalsClosed++;
 				if (portalsClosed >= 5) {
 					player.story.won = true; //hacks omg
