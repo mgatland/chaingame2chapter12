@@ -310,6 +310,10 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 
 			room.enemies.forEach(function (enemy) {
 				var color = red;
+				if (enemy.speed >= 3) {
+					addRectWithCamera(vertices, colors, enemy.pos.x-1, enemy.pos.y-1,
+					enemy.size.x+2, enemy.size.y+2, flicker ? red : green, camera);	
+				}
 				addRectWithCamera(vertices, colors, enemy.pos.x, enemy.pos.y,
 					enemy.size.x, enemy.size.y, color, camera);
 			});

@@ -91,7 +91,7 @@ var Cerulean = function () {
 						function () {
 						_this.endScreen = true;
 					});
-					messages.addMessage("We have power you can't imagine!", 2);
+					messages.addMessage("We have power you can't imagine!", 3);
 					messages.addMessage("END OF CHAPTER 12", 999, null, true);
 				}
 			} else if (this.mode == "intro") {
@@ -104,17 +104,18 @@ var Cerulean = function () {
 				}
 
 			} else if (this.mode === "intro2") {
+				if (storyFrame == 6.5*sec || (testing && storyFrame == 0)) {
+					this.startScreen = false;
+				}
 				if (storyFrame == 0.0*sec) {
 					audioUtil.playIntro();
-					if (!testing) {
-						messages.addMessage("", 2, null, true); //hardcoded Chapter 12, by Matthew Gatland
-						messages.addMessage("Do you know what the aliens call you now?", 2);
-					}
-					messages.addMessage("The Troublemaker.", 2, function () {_this.startScreen = false;});
+					messages.addMessage("", 2, null, true); //hardcoded Chapter 12, by Matthew Gatland
+					messages.addMessage("Do you know what the aliens call you now?", 3);
+					messages.addMessage("The Troublemaker.", 3);
 					messages.addMessage("Roaming the stars, upsetting the balance.", 3);
 					messages.addMessage("Of course it took a human to catch you.", 3);
 					messages.addMessage("", 1);
-					messages.addMessage("I asked MI6 to scan your phone.", 3);
+					messages.addMessage("I had MI6 scan your phone.", 3);
 					messages.addMessage("We took your location history.", 3);
 					messages.addMessage("My starpervs are opening gates to those coordinates.", 4);
 					messages.addMessage("Soon, Britain's armies will invade those worlds.", 3);
@@ -250,7 +251,7 @@ var Cerulean = function () {
 		this.live = true;
 		this.health = this.maxHealth;
 		this.pos = pos;
-		this.speed = 3;
+		this.speed = 1;
 		this.size = new Pos(20, 20);
 		this.state = "wait";
 		this.nextSearchRoom = null;
