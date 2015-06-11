@@ -81,176 +81,28 @@ var Cerulean = function () {
 					for (var i = 0; i < 10; i++) {
 						messages.addMessage("", 0);	
 					}
-					messages.addMessage("Use arrow keys to move", 1);
+					
 				}
 
 			} else if (this.mode === "intro2") {
 				storyFrame++;
 				if (storyFrame == 0.5*sec) {
-					messages.addMessage("Hold space to charge", 1);
-				}
-			} else if (this.mode === "game1") {
-				if (storyFrame == 0) {
-					//messages.clearMessages();
-					//player.room.messages.length = 0; //HACK: delete the intro text
-				}
-				storyFrame++;
-				if (storyFrame == 2*sec) {
-					player.room.locked = false;
-					messages.addMessage("WHAT HAVE YOU DONE?", 1);
-					messages.addMessage("GET OUT!", 2);
-					messages.addMessage("GET OUT!", 20);
-					messages.addMessage("Insect.", 2);
-					messages.addMessage("I have slept for two thousand years.", 5);
-					messages.addMessage("I should have slept for thousands more.", 4);
-					messages.addMessage("You've ruined everything.", 20);
-					messages.addMessage("I will have to wait for my family to rise.", 4);
-					messages.addMessage("Do you know what it's like?", 3);
-					messages.addMessage("To wait thousands of years?", 3);
-					messages.addMessage("Of course you don't.", 2);
-					messages.addMessage("Mortal.", 2);
-					messages.addMessage("Insect.", 2);
-					messages.addMessage("You can't understand how horrible it is.", 5);
-					messages.addMessage("Your life is short and worthless.", 2);
-					messages.addMessage("I'll kill you today.", 2);
-					messages.addMessage("But I will still be suffering long after your name is forgotten.", 20);
-				}
-				if (storyFrame == 7*sec) this.shaking = false;
-
-				if (quietAndTogether && this.shaking == false) {
-					this.mode = "game2";
-					storyFrame = 0;
-				}
-
-			} else if (this.mode === "game2") {
-				if (storyFrame == 0) messages.clearMessages();
-				storyFrame++;
-				if (storyFrame == 1*sec) {
-					messages.addMessage("Stranger: Hello!", 1);
-					messages.addMessage("Justin: What are you doing here? It's not safe!", 1);
-					messages.addMessage("Stranger: I noticed!", 2);
-					messages.addMessage("Stranger: I'm Anna Harpin. I study Pharos artifacts.", 2);
-					messages.addMessage("Anna: Something teleported me in from my lab.", 2);
-					messages.addMessage("Justin: I'm Justin.", 1);
-					messages.addMessage("Justin: I'm an artifact retrieval specialist.", 2);
-					messages.addMessage("Justin: I've lost contact with HQ. Do you know a way out?", 2);
-					messages.addMessage("Anna: Not exactly. But I can help - this is a Wand of Justice.", 2);
-					//TODO: Don't allow the story to skip messages that call functions!
-					var revealWandFunc = function () {
-						companion.wandTarget = specialItems.collector;
-					}
-					messages.addMessage("Anna: The Wand points towards powerful artifacts.", 2, revealWandFunc);
-					messages.addMessage("Anna: It can lead us to Pharos devices that will help us.", 2);
-					messages.addMessage("Justin: Nice! OK, let's see what we can find.", 8);
-
-					//Amulet of Might
-
-					messages.addMessage("Anna: I see you already found the Amulet of Might.", 2);
-					messages.addMessage("Justin: Is that what this weapon is called?", 1);
-					messages.addMessage("Anna: It's far more than a weapon!", 2);
-					messages.addMessage("Anna: If you're about to be killed, it will teleport you back to where you found it.", 2);
-					messages.addMessage("Anna: Nothing can ever kill you while you hold it.", 2);
-					messages.addMessage("Justin: Wow.", 2);
-					messages.addMessage("Anna: It should protect me too, while I'm with you.", 2);
-					messages.addMessage("Anna: So I hope you don't mind me keeping close :)", 8);
-
-				}
-			} else if (this.mode === "game3") {
-				if (storyFrame == 0) messages.clearMessages();
-				storyFrame++;
-				if (storyFrame == 0.5*sec) {
-					messages.addMessage("Justin: Looks like a bracelet.", 2);
-					messages.addMessage("Anna: The Calling Circle. It draws energy out of the automatons, as you destroy them.", 4);
-					messages.addMessage("Justin: What can I do with that energy?", 2);
-					messages.addMessage("Anna: I don't know. I guess we'll find out.", 6);
-
-
-
-					var findEyesFunc = function () {
-						companion.wandTarget = specialItems.eyes;
-					}
-
-					messages.addMessage("Anna: The wand is locating another artifact.", 2);
-					messages.addMessage("Anna: There!", 8, findEyesFunc);
-
-					//Wand of Justice
-					messages.addMessage("Justin: What is that wand you're using?", 2);
-					messages.addMessage("Anna: The Wand of Justice.", 2);
-					messages.addMessage("Anna: The Pharos King's men used them to find and steal people's valuable treasures.", 2);
-					messages.addMessage("Anna: It can also freeze the automatons.", 2);
-					messages.addMessage("Justin: You know, when we get out of here, you'll have to give that to me.", 2);
-					messages.addMessage("Anna: What?! It's mine!", 1);
-					messages.addMessage("Justin: Everything in this labyrinth belongs to my employer.", 2);
-					messages.addMessage("Anna: I didn't find it in the labyrinth!", 1);
-					messages.addMessage("Anna: I brought it in with me.", 3);
-					messages.addMessage("Justin: ...", 1);
-					messages.addMessage("Justin: I thought you were teleported in by accident.", 2);
-					messages.addMessage("Anna: I was holding the wand when it happened. It's from my lab.", 2);
-					messages.addMessage("Justin: Oh.", 2);
-					messages.addMessage("Anna: In fact, that's probably why I was pulled in.", 6);
-				}
-			} else if (this.mode === "game4") {
-				if (storyFrame == 0) messages.clearMessages();
-				storyFrame++;
-
-
-				if (storyFrame == 0.5*sec) {
-					messages.addMessage("Anna: We can't use those.", 2);
-					messages.addMessage("Anna: They're called the Eyes of Devotion.", 2);
-					messages.addMessage("Anna: They let two people read each other's minds.", 2);
-					messages.addMessage("Justin: That sounds useful, if we get separated.", 1);
-					messages.addMessage("Anna: No way! It's permanent.", 2);
-					messages.addMessage("Anna: You'd be in my head forever.", 2);
-					messages.addMessage("Justin: Oh. Doesn't sound so bad...", 2);
-					messages.addMessage("Anna: We are not using those.", 2);
-					messages.addMessage("Anna: Anyway, they're worthless once activated, so your company would be angry if we wasted them.", 2);
-					messages.addMessage("Justin: My boss would want us to get out safely.", 2);
-					messages.addMessage("Justin: But OK. I'll hang on to them.", 3);
-					messages.addMessage("Anna: Actually, give me one, just in case.", 3);
-					messages.addMessage("Anna: If something really bad happens, we can activate them.", 3);
-					messages.addMessage("Justin: OK.", 3);
-					messages.addMessage("(You gave Anna one of the Eyes of Devotion.)", 3);
-					messages.addMessage("Anna: I'll find our next destination.", 3);
-
-					//TODO add destination here
-
-					messages.addMessage("Voice: WHO DARES WAKE ME?", 3);
-
-					var that = this;
-					messages.addMessage("Anna: Um. This is awkward.", 1, function() {
-						that.mode = "unfinished_ending";
-						that.storyFrame = 0;
-					});
-				}
-				/*if (storyFrame == 1*sec) {
-					this.mode = "unfinished_ending";
-					storyFrame = 0;
-				}*/
-
-			} else if (this.mode === "unfinished_ending") {
-
-				if (storyFrame == 0) messages.clearMessages();
-				storyFrame++;
-				if (storyFrame == 0.5*sec) {
-					//make sure players know to stop now.
-					messages.addMessage("Anna: Actually", 2);
-					messages.addMessage("Anna: This is the end of the game.", 2);
-					messages.addMessage("Justin: What?!", 2);
-					messages.addMessage("Anna: The game's not finished yet, and this is the end.", 2);
-					messages.addMessage("Anna: We can keep exploring, but we're not going to find any more artifacts.", 2);
-					messages.addMessage("Justin: You mean, we can't escape?", 2);
-					messages.addMessage("Anna: I'm afraid not.", 4);
-					messages.addMessage("Justin: So...", 2);
-					messages.addMessage("Anna: Yeah.", 4);
-					messages.addMessage("Justin: We could try to find the edge of the world.", 3);
-					messages.addMessage("Anna: That could be fun.", 2);
-					messages.addMessage("Anna: But nothing will happen when we get there.", 2);
-					messages.addMessage("Anna: I mean, I'm not even going to say anything.", 2);
-					messages.addMessage("Anna: This is the end of the talking.", 2);
-					messages.addMessage("Justin: OK.", 9);
-					messages.addMessage("Justin: So...", 1);
-					messages.addMessage("Anna: No more talking!", 10);
-					messages.addMessage("THE END", 1);
+					messages.addMessage("(Use arrow keys to move)", 2);
+					messages.addMessage("Troublemaker.", 2);
+					messages.addMessage("That's what they call you.", 2);
+					messages.addMessage("Roaming the stars, causing chaos.", 4);
+					messages.addMessage("I had to bring you home.", 3);
+					messages.addMessage("", 1);
+					messages.addMessage("I asked MI6 to scan your phone.", 2);
+					messages.addMessage("Impressive location history.", 5);
+					messages.addMessage("My starpervs are now opening gateways", 3);
+					messages.addMessage("to every world you visited.", 3);
+					messages.addMessage("Soon, Britian's armies will invade them all.", 4);
+					messages.addMessage("The United Kingdom will rule through space!", 3);
+					messages.addMessage("All thanks to you.", 3);
+					messages.addMessage("Anyway, enough chit chat.", 2);
+					messages.addMessage("I have an invasion to plan.", 2);
+					messages.addMessage("", 1);
 				}
 			}
 		}
@@ -262,14 +114,8 @@ var Cerulean = function () {
 		}
 
 		this.hackedFirstRoom = function (player, audioUtil) {
-			if (this.mode == "intro2") {
-				this.mode = "game1";
-				storyFrame = 0;
-				//player.canAttack = true;
-				player.canUseDoors = true;
-				//player.room.spawnTowers();
-				audioUtil.playGotItem();
-			}
+			player.room.locked = false;
+			audioUtil.playGotItem();
 		}
 
 		this.gotCollectorItem = function (player) {
@@ -474,7 +320,7 @@ var Cerulean = function () {
 		this.maxAttackCharge = 5 * 60;
 		this.attackChargeLimit = this.maxAttackCharge;
 
-		this.canUseDoors = false;
+		this.canUseDoors = true;
 		this.canAttack = false;
 
 		this.story = null; //Set me externally! FIXME
