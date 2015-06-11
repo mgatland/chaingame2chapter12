@@ -210,37 +210,7 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 	var maxParticleSize = 60;
 	var maxParticleSpeed = 25;
 
-	this.draw = function (player, companion, rooms, camera, fps) {
-
-		hudOverlay.clear();
-
-		if(player.story.mode != "intro") {
-			hudOverlay.drawHud(player.itemHint, player.message, player.items, player.roomsExplored, rooms.length, fps);
-		}
-
-		flickerCounter ++;
-		if (flickerCounter == 4) flickerCounter = 0;
-		flicker = (flickerCounter <= 1);
-
-		frameValue++;
-		if (frameValue > 100) frameValue = 0;
-
-		squareVerticesBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
-
-		var vertices = [];
-		var colors = [];
-
-		//Draw a big black rectangle over the background, so that the noise shader is applied
-		addRect(vertices, colors, 0, 0, gameWindow.width, gameWindow.height, black);
-
-		//Red lines in background
-		var lineColor = (player.story.mode==="intro" || player.story.mode === "intro2") ? green : red;
-		for (var y = 0; y < gameWindow.height + gameConsts.tileSize*2; y+= gameConsts.tileSize*2) {
-			var y2 = (player.story.shaking==true) ? y + Math.random() * gameConsts.tileSize*2 : y;
-			addRect(vertices, colors, 0, y2 - camera.pos.y % (gameConsts.tileSize*2), gameWindow.width, 1, lineColor);
-		}
-
+	this.drawGame = function (vertices, colors, player, companion, rooms, camera, fps) {
 		rooms.forEach(function (room) {
 
 			//if (!room.explored) return;
@@ -431,6 +401,48 @@ var Renderer = function (gameWindow, gameConsts, shaders) {
 		addRect(vertices, colors, 0, gameWindow.height - 32, width, 32, green);
 
 		//end of drawing objects code.
+	}
+
+
+	this.draw = function (player, companion, rooms, camera, fps) {
+
+		hudOverlay.clear();
+
+		var showGame = true;
+		if (player.story.endScreen) {
+			showGame = false;
+		}
+
+		if(player.story.mode != "intro") {
+			hudOverlay.drawHud(player.itemHint, player.message, player.items, player.roomsExplored, rooms.length, fps);
+		}
+
+		flickerCounter ++;
+		if (flickerCounter == 4) flickerCounter = 0;
+		flicker = (flickerCounter <= 1);
+
+		frameValue++;
+		if (frameValue > 100) frameValue = 0;
+
+		squareVerticesBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
+
+		var vertices = [];
+		var colors = [];
+
+		//Draw a big black rectangle over the background, so that the noise shader is applied
+		addRect(vertices, colors, 0, 0, gameWindow.width, gameWindow.height, black);
+
+		//Red lines in background
+		var lineColor = (player.story.mode==="won") ? red : green;
+		for (var y = 0; y < gameWindow.height + gameConsts.tileSize*2; y+= gameConsts.tileSize*2) {
+			var y2 = (player.story.shaking==true) ? y + Math.random() * gameConsts.tileSize*2 : y;
+			addRect(vertices, colors, 0, y2 - camera.pos.y % (gameConsts.tileSize*2), gameWindow.width, 1, lineColor);
+		}
+
+		if (showGame) {
+			this.drawGame(vertices, colors, player, companion, rooms, camera, fps);
+		}
 
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 		squareVerticesColorBuffer = gl.createBuffer();

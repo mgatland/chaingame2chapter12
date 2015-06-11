@@ -84,16 +84,19 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 	this.drawHud = function(itemHint, message, bitscore, roomsExplored, roomsInTotal, fps) {
 		ctx2.fillStyle = "#5DE100";
 		ctx2.font = '32px "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace';
-		ctx2.fillText("FPS: " + fps, 850, gameWindow.height - 32);
+		//ctx2.fillText("FPS: " + fps, 850, gameWindow.height - 32);
 		
 		if (message) {
-			var width = ctx2.measureText(message).width;
+			var width = ctx2.measureText(message.msg).width;
 			var x = gameWindow.width / 2 - width / 2;
 			var y = gameWindow.height /4 * 3;
+			if (message.big) {
+				y = gameWindow.height / 2;
+			}
 			ctx2.fillStyle = "rgba(0, 0, 0, 0.7)";
 			ctx2.fillRect(x, y-32, width, 40);
 			ctx2.fillStyle = "#5DE100";
-			ctx2.fillText(message, x, y);
+			ctx2.fillText(message.msg, x, y);
 
 		}
 		

@@ -30,8 +30,8 @@ var Cerulean = function () {
 		var nextMessageDelay = 0;
 		var fps = 60; //number of frames per second
 
-		this.addMessage = function (msg, delay, func) {
-			messageQueue.push({msg:msg, delay:delay, func:func});
+		this.addMessage = function (msg, delay, func, big) {
+			messageQueue.push({msg:msg, delay:delay, func:func, big:big});
 		}
 
 		this.clearMessages = function () {
@@ -51,7 +51,7 @@ var Cerulean = function () {
 				if (true) { //you can always add messages for now
 					messageQueue.shift();
 					audioUtil.playAddMessage();
-					player.message = msg.msg;
+					player.message = msg;
 					player.messageWaiting = false;
 					nextMessageDelay = msg.delay * fps;
 					if (msg.func) msg.func();
@@ -63,10 +63,11 @@ var Cerulean = function () {
 	}
 
 	var Story = function (specialItems) {
-
+		var _this = this;
 		//"intro" - cannot pass through doorways, do not show HUD.
 		this.mode = "intro2"; 
 		this.shaking = false;
+		this.won = false;
 
 		var sec = 60; //just a constant
 
@@ -75,7 +76,26 @@ var Cerulean = function () {
 
 			var quietAndTogether = (companion && player.room === companion.room && player.room.enemies.length === 0);
 
-			if (this.mode == "intro") {
+			if (this.won) {
+				this.mode = "won";
+				this.won = false; //it's a single use flag
+				storyFrame = 0;
+				messages.clearMessages();
+			} else if (this.mode == "won") {
+				storyFrame++;
+				if (storyFrame == 0.5*sec) {
+					messages.addMessage("What have you done?", 2);
+					messages.addMessage("My gateways are ruined!", 2);
+					messages.addMessage("Troublemaker.", 2);
+					messages.addMessage("Wherever you run, Britain will find you.", 3,
+						function () {
+						console.log("show end screen");
+						_this.endScreen = true;
+					});
+					messages.addMessage("We have power you can't imagine!", 2);
+					messages.addMessage("END OF CHAPTER 12", 999, null, true);
+				}
+			} else if (this.mode == "intro") {
 				storyFrame++;
 				if (storyFrame == 0.5*sec) {
 					for (var i = 0; i < 10; i++) {
@@ -98,7 +118,7 @@ var Cerulean = function () {
 					messages.addMessage("Impressive location history.", 5);
 					messages.addMessage("My starpervs are now opening gateways", 3);
 					messages.addMessage("To every world you visited.", 3);
-					messages.addMessage("Soon, Britian's armies will invade them all.", 4);
+					messages.addMessage("Soon, Britain's armies will invade them all.", 4);
 					messages.addMessage("The United Kingdom will rule through space!", 3);
 					messages.addMessage("All thanks to you.", 3);
 					messages.addMessage("Anyway, enough chit chat.", 2);
@@ -825,6 +845,10 @@ var Cerulean = function () {
 		goalRooms.forEach(function (room) {
 			var onHackPortal = function (player) {
 				console.log("Hacked a portal");
+				portalsClosed++;
+				if (portalsClosed >= 5) {
+					player.story.won = true; //hacks omg
+				}
 			}
 			var controlPanel = new Item(
 				room.getCenter().multiply(GameConsts.tileSize), 
@@ -837,6 +861,9 @@ var Cerulean = function () {
 
 		return null;
 	}
+
+	//hasty globals
+	var portalsClosed = 0;
 
 	var start = function (shaders, audioUtil, startTime) {
 		var gameWindow = new GameWindow();
