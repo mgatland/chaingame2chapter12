@@ -269,12 +269,36 @@ var Cerulean = function () {
 			return (this.room != oldPathStart || end != oldPathEnd);
 		}
 
-		this.update = function (player) {
+		var guessNextRoom = function(currentRoom) {
+			var guesses = [];
+			currentRoom.doors.forEach(function (door) {
+				if (door.otherRoom != _this.oldSearchRoom && !door.otherRoom.locked) {
+					guesses.push(door.otherRoom);
+				}
+			});
+			if (guesses.length == 0) {
+				return _this.oldSearchRoom; //have to backtrack
+			} else {
+				return guesses[Math.floor(Math.random() * guesses.length)];	
+			}
+		}
+
+		this.update = function (player, audioUtil) {
 			if (this.room == player.room) {
 				this.state = "see";
 				this.speed = 3;
 				this._moveTowards(player.pos, "horizontal");
 				this._moveTowards(player.pos, "vertical");
+
+				//hurt player if touching
+				if (this.pos.x < player.pos.x + player.size.x
+					&& this.pos.y < player.pos.y + player.size.y
+					&& player.pos.x < this.pos.x + this.size.x
+					&& player.pos.y < this.pos.y + this.size.y
+					) {
+					player.hit(audioUtil);
+				}
+
 			} else {
 				if (loudRoom != null) {
 					this.state = "goto";
@@ -302,18 +326,7 @@ var Cerulean = function () {
 							this.speed = 1;
 						}
 						//guess where she went next
-						var guesses = [];
-						this.room.doors.forEach(function (door) {
-							if (door.otherRoom != _this.oldSearchRoom) {
-								guesses.push(door.otherRoom);
-							}
-						});
-						if (guesses.length == 0) {
-							//have to backtrack.
-							this.nextSearchRoom = this.oldSearchRoom;
-						} else {
-							this.nextSearchRoom = guesses[Math.floor(Math.random() * guesses.length)];	
-						}
+						this.nextSearchRoom = guessNextRoom(this.room);
 						//never backtrack to here
 						this.oldSearchRoom = this.room;
 					} else {
@@ -321,6 +334,18 @@ var Cerulean = function () {
 						var doorToUse = this.room.doors.filter(function (door) {
 							return door.otherRoom === _this.nextSearchRoom;
 						}).pop();
+
+						//bug, happens when player respawns away in front of an enemy
+						//their nextSearchRoom becomes the respawn point (not good)
+						if (doorToUse == null) {
+							//pick a random room, then the door to it
+							this.nextSearchRoom = guessNextRoom(this.room);
+							var doorToUse = this.room.doors.filter(function (door) {
+								return door.otherRoom === _this.nextSearchRoom;
+							}).pop();
+						} else {
+							moveToDoorway(doorToUse);
+						}
 						moveToDoorway(doorToUse);
 					}
 				}
@@ -393,10 +418,15 @@ var Cerulean = function () {
 			this.pos = this.home.getCenter();
 			this.pos.x *= GameConsts.tileSize;
 			this.pos.y *= GameConsts.tileSize;
+			//hack to position next to the bars of the cell
+			this.pos.x += 30;
 			if (this.room) this.room.cleanUp();
 			if (this.lastRoom) this.lastRoom.cleanUp();
 			this.room = this.home;
 			this.lastRoom = null;
+			//prison hacks
+			this.room.locked = true;
+			this.room.items[0].canBeUsed = true;
 		}
 
 		this.resetCharge = function (audioUtil) {
@@ -556,7 +586,7 @@ var Cerulean = function () {
 			var itemDist = 999999;
 			this.canAttack = false;
 			this.room.items.forEach(function (item) {
-				if (item.getCenter().distanceTo(_this.getCenter()) < item.size.x / 2 + _this.size.x + 20) {
+				if (item.getCenter().distanceTo(_this.getCenter()) < item.size.x / 2 + _this.size.x / 2 + 10) {
 					if (_this.attackCharge >= _this.attackChargeLimit) {
 						item.activate(_this);
 					} else {
@@ -581,7 +611,7 @@ var Cerulean = function () {
 			console.log('hit!');
 			if (this.health > 0) {
 				audioUtil.shotHitPlayer(this.health);
-				this.invlunerableTime = 2;
+				this.invlunerableTime = 15;
 			} else {
 				audioUtil.playerDied();
 				isChargingAttack = false;
@@ -742,7 +772,7 @@ var Cerulean = function () {
 			firstRoom.pos.clone().multiply(GameConsts.tileSize).moveXY(GameConsts.wallWidth, GameConsts.wallWidth), 
 			true, 
 			"Hold [space] to break power box",
-			"It's broken",
+			"You unlocked the door.",
 			onHackFirstRoom);
 		firstRoom.items.push(controlPanel);
 

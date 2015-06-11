@@ -435,6 +435,8 @@ var WorldGenerator = function (gameConsts, Enemy) {
 	}
 
 	this.generate = function () {
+
+		this.addRoom(8, 8, 1, 1); //prison
 		this.addRoom(9, 8, 4, 3); //center
 
 		//right hand side
