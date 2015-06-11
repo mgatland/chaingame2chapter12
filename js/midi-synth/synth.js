@@ -597,6 +597,7 @@ function AudioUtil() {
 	}
 
 	function keyDown( ev ) {
+		return; //disable for now
 		if ((ev.keyCode==49)||(ev.keyCode==50)) {
 			if (ev.keyCode==49)
 				moDouble = true;
@@ -784,14 +785,35 @@ function AudioUtil() {
 	}
 
 	this.playIntro = function () {
-		var bpm = 80;
+		var bpm = 180;
 		var beat = 60 / bpm;
 		var extra = beat / 10;
 		var now = audioContext.currentTime;
-		scheduleNote(62, now, beat*8 + extra);
-		scheduleNote(65, now+beat*1, beat*7 + extra);
-		scheduleNote(67, now+beat*2, beat*6 + extra);
-		scheduleNote(71, now+beat*3, beat*5 + extra);
+		scheduleNote(64, now, beat*2 + extra);
+		scheduleNote(67, now+beat*2, beat*1 + extra);
+		scheduleNote(69, now+beat*3, beat*1 + extra);
+		scheduleNote(72, now+beat*4, beat*2 + extra);
+		scheduleNote(71, now+beat*6, beat*2 + extra);
+		scheduleNote(69, now+beat*8, beat*1 + extra);
+		scheduleNote(71, now+beat*9, beat*1 + extra);
+		scheduleNote(67, now+beat*10, beat*2 + extra);
+		scheduleNote(69, now+beat*12, beat*3 + extra);
+	}
+
+	this.playEnding = function () {
+		var bpm = 180;
+		var beat = 60 / bpm;
+		var extra = beat / 10;
+		var now = audioContext.currentTime;
+		scheduleNote(64, now, beat*2 + extra);
+		scheduleNote(67, now+beat*2, beat*1 + extra);
+		scheduleNote(71, now+beat*3, beat*1 + extra);
+		scheduleNote(69, now+beat*4, beat*2 + extra);
+		scheduleNote(67, now+beat*6, beat*1 + extra);
+		scheduleNote(69, now+beat*7, beat*1 + extra);
+		scheduleNote(71, now+beat*8, beat*2 + extra);
+		scheduleNote(74, now+beat*10, beat*2 + extra);
+		scheduleNote(76, now+beat*12, beat*4 + extra);
 	}
 
 	this.playAddMessage = function () {
@@ -803,29 +825,6 @@ function AudioUtil() {
 	}
 
 	this.update = function () {
-		if (enemyAttackTimer > 0) {
-			enemyAttackTimer--;
-			if (enemyAttackTimer == 0) noteOff(enemyAttackNote);
-		}
-
-		if (bitCollectionTimer > 0) {
-			bitCollectionTimer--;
-
-		}
-		//Hacks because we share a note
-		if (bitCollectionTimer == 0 && playerAttackTimer == 0) {
-			noteOff(playerAttackNote1);
-			noteOff(playerAttackNote2);
-		}
-
-		if (playerAttackTimer > 0) {
-			playerAttackTimer--;
-			if (playerAttackTimer == 0) {
-				noteOff(playerAttackNote1);
-				noteOff(playerAttackNote2);
-				noteOff(playerAttackNote3);
-			}
-		}
 	}
 
 	window.up = function() {

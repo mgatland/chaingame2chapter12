@@ -86,9 +86,7 @@ var Cerulean = function () {
 			} else if (this.mode == "won") {
 				storyFrame++;
 				if (storyFrame == 0.5*sec) {
-					messages.addMessage("What have you done?", 2);
-					messages.addMessage("My gateways are ruined!", 2);
-					messages.addMessage("Troublemaker.", 2);
+					messages.addMessage("", 4);
 					messages.addMessage("Wherever you run, Britain will find you.", 3,
 						function () {
 						_this.endScreen = true;
@@ -107,6 +105,7 @@ var Cerulean = function () {
 
 			} else if (this.mode === "intro2") {
 				if (storyFrame == 0.0*sec) {
+					audioUtil.playIntro();
 					if (!testing) {
 						messages.addMessage("", 2, null, true); //hardcoded Chapter 12, by Matthew Gatland
 						messages.addMessage("Troublemaker.", 2);
@@ -805,10 +804,12 @@ var Cerulean = function () {
 		goalRooms.forEach(function (room) {
 			var onHackPortal = function (player) {
 				console.log("Hacked a portal");
-				audioUtil.playGotItem(1);
 				portalsClosed++;
 				if (portalsClosed >= 5 || (testing && portalsClosed >= 1)) {
 					player.story.won = true; //hacks omg
+					audioUtil.playEnding();
+				} else {
+					audioUtil.playGotItem(1);
 				}
 				loudRoom = player.room;
 				player.room.flashing = 40;
