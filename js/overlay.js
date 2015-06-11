@@ -108,7 +108,7 @@ var HudOverlay = function(overlayId, gameWindow, gameConsts) {
 			printLine(message.msg, y, 32);
 		}
 		
-		if (itemHint) {
+		if (itemHint && !story.startScreen && !story.endScreen) {
 			var y = gameWindow.height / 2 + 64;
 			printLine(itemHint, y, 22);
 		}
