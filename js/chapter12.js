@@ -259,6 +259,9 @@ var Cerulean = function () {
 		this.oldSearchRoom = null;
 		this.roomsSearched = 0;
 
+		this.startRoom = this.room;
+		this.startPos = this.pos.clone();
+
 		var oldPath = null;
 		var oldPathEnd = null;
 		var oldPathStart = null;
@@ -284,6 +287,15 @@ var Cerulean = function () {
 		}
 
 		this.update = function (player, audioUtil) {
+			if (resetGuards) {
+				this.state = "search";
+				this.speed = 1;
+				this.roomsSearched = 4; //will keep speed to 1
+				this.pos = this.startPos.clone();
+				this.room = this.startRoom;
+				this.oldSearchRoom = this.room;
+				this.nextSearchRoom = null;
+			}
 			if (this.room == player.room) {
 				this.state = "see";
 				this.speed = 3;
@@ -313,6 +325,7 @@ var Cerulean = function () {
 					this.oldSearchRoom = this.room;
 					this.roomsSearched = 0;
 					this.state = "search";
+					this.speed = 3;
 				}
 
 				if (this.state === "search") {
@@ -343,8 +356,6 @@ var Cerulean = function () {
 							var doorToUse = this.room.doors.filter(function (door) {
 								return door.otherRoom === _this.nextSearchRoom;
 							}).pop();
-						} else {
-							moveToDoorway(doorToUse);
 						}
 						moveToDoorway(doorToUse);
 					}
@@ -540,6 +551,7 @@ var Cerulean = function () {
 				if (this.health <= 0) {
 					track("respawned", ""+this.roomsExplored);
 					this.respawn();
+					resetGuards = true;
 				}
 
 				if (this.health < this.maxHealth) {
@@ -805,6 +817,7 @@ var Cerulean = function () {
 	//hasty globals
 	var portalsClosed = 0;
 	var loudRoom = null;
+	var resetGuards = false;
 
 	var start = function (shaders, audioUtil, startTime) {
 		var gameWindow = new GameWindow();
@@ -846,7 +859,9 @@ var Cerulean = function () {
 				room.update(player, audioUtil);
 			});
 
+			//reset hasty globals every frame
 			loudRoom = null;
+			resetGuards = false;
 			player.update(keyboard, audioUtil, messages);
 
 			keyboard.update();
