@@ -392,6 +392,7 @@ var WorldGenerator = function (gameConsts, Enemy) {
 
 	var rooms = [];
 	var filledCells = {};
+	var goalRooms = [];
 
 	this.addRoom = function(x, y, width, height, type) {
 		x = x * 3;
@@ -428,7 +429,8 @@ var WorldGenerator = function (gameConsts, Enemy) {
 		});
 
 		if (type==="tele") {
-			newRoom.spawnTower();
+			goalRooms.push(newRoom);
+			//newRoom.spawnTower();
 		}
 	}
 
@@ -457,6 +459,6 @@ var WorldGenerator = function (gameConsts, Enemy) {
 		this.addRoom(2, 6, 4, 3, "tele"); //left goal room	
 		this.addRoom(4, 9, 1, 2); //hall from up left goal to down left goal
 
-		return {rooms:rooms, cells: filledCells};
+		return {rooms:rooms, cells: filledCells, goalRooms: goalRooms};
 	}
 }

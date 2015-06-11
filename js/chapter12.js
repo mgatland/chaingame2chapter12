@@ -476,7 +476,7 @@ var Cerulean = function () {
 
 		this.attackCharge = 0;
 		this.maxAttackCharge = 5 * 60;
-		this.attackChargeLimit = this.maxAttackCharge / 4;
+		this.attackChargeLimit = this.maxAttackCharge;
 
 		this.canUseDoors = false;
 		this.canAttack = false;
@@ -964,7 +964,7 @@ var Cerulean = function () {
 		}
 	}
 
-	var createSpecialItems = function (rooms, cells, audioUtil) {
+	var createSpecialItems = function (rooms, cells, goalRooms, audioUtil) {
 		var firstRoom = rooms[0];
 		firstRoom.special = true;
 
@@ -979,29 +979,20 @@ var Cerulean = function () {
 			onHackFirstRoom);
 		firstRoom.items.push(controlPanel);
 
+		goalRooms.forEach(function (room) {
+			var onHackPortal = function (player) {
+				console.log("Hacked a portal");
+			}
+			var controlPanel = new Item(
+				room.getCenter().multiply(GameConsts.tileSize), 
+				true, 
+				"Hold [space] to break the portal",
+				"It's broken",
+				onHackPortal);
+			room.items.push(controlPanel);
+		});
+
 		return null;
-/*		var itemCollectorRoom = findRoomNear(58, 58, rooms, cells);
-		itemCollectorRoom.special = true;
-		var collectorItem = new Item(itemCollectorRoom.getCenter().multiply(GameConsts.tileSize), true);
-		collectorItem.pos.moveXY(16, 16);
-		collectorItem.onCollected = function (player) {
-			player.story.gotCollectorItem(player);
-		}
-		itemCollectorRoom.enemies = [];
-		itemCollectorRoom.items.push(collectorItem);
-
-
-		var eyesRoom = findRoomNear(40, 70, rooms, cells);
-		eyesRoom.special = true;
-		var eyesItem = new Item(eyesRoom.getCenter().multiply(GameConsts.tileSize), true);
-		eyesItem.pos.moveXY(16,16);
-		eyesItem.onCollected = function (player) {
-			player.story.gotEyesItem(player);
-		}
-		eyesRoom.enemies = [];
-		eyesRoom.items.push(eyesItem);
-
-		return {collector: collectorItem, eyes: eyesItem};*/
 	}
 
 	var start = function (shaders, audioUtil, startTime) {
@@ -1018,7 +1009,7 @@ var Cerulean = function () {
 
 		var roomData = worldGenerator.generate();
 		var rooms = roomData.rooms;
-		var specialItems = createSpecialItems(rooms, roomData.cells, audioUtil);
+		var specialItems = createSpecialItems(rooms, roomData.cells, roomData.goalRooms, audioUtil);
 		roomData = null; //Free up the memory?
 
 		var player = new Player();
