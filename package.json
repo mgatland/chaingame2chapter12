@@ -1,0 +1,11 @@
+{
+  "name": "chain game 2 - Episode 12 by Matthew Gatland",
+  "main": "index.html",
+  "window": {
+  	"title": "Episode 12",
+    "toolbar": false,
+    "width": 800,
+    "height": 600,
+    "icon": "icon.png"
+  }
+}

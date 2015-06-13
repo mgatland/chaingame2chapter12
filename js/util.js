@@ -89,7 +89,7 @@ function loadFile(url, data, callback, errorCallback) {
         // If the request is "DONE" (completed or failed)
         if (request.readyState == 4) {
             // If we got HTTP status 200 (OK)
-            if (request.status == 200) {
+            if (request.status == 200 || request.status == 0) {
                 callback(request.responseText, data)
             } else { // Failed
                 errorCallback(url);

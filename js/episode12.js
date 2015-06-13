@@ -791,7 +791,7 @@ var Cerulean = function () {
 		var startTime = Date.now();
 		var audioUtil = new AudioUtil();
 		//audioUtil.playIntro();
-		loadFiles(['shaders/fragment.glsl', 'shaders/vertex.glsl'], function (shaders) {
+		loadFiles(['./shaders/fragment.glsl', './shaders/vertex.glsl'], function (shaders) {
 			start(shaders, audioUtil, startTime);
 		}, function (url) {
 		    alert('Failed to download "' + url + '"');
