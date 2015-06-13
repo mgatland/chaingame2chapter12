@@ -955,6 +955,15 @@ var Cerulean = function () {
 }
 
 window.onload = function () {
+	//Guess if if we're running in node-webkit, if we are, go fullscreen.
+	var isNode = (typeof process !== "undefined" && typeof require !== "undefined");
+	if (isNode) {
+		var gui = require('nw.gui');
+		var win = gui.Window.get();
+		win.maximize();
+	}
+
 	var cerulean = new Cerulean();
 	cerulean.load();
+
 };
