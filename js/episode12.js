@@ -83,6 +83,7 @@ var Cerulean = function () {
 				this.won = false; //it's a single use flag
 				storyFrame = 0;
 				messages.clearMessages();
+				track("game won", ""+(Date.now() - startTime));
 			} else if (this.mode == "won") {
 				storyFrame++;
 				if (storyFrame == 0.5*sec) {
@@ -589,7 +590,8 @@ var Cerulean = function () {
 				this.invlunerableTime--;
 			} else {
 				if (this.health <= 0) {
-					track("respawned", ""+this.roomsExplored);
+					captureCount++;
+					track("captured", ""+captureCount);
 					this.respawn();
 					resetGuards = true;
 					//prison hacks
@@ -612,9 +614,6 @@ var Cerulean = function () {
 				room.explored = true;
 				this.roomsExplored++;
 				this.story.roomsExplored(this.roomsExplored, messages);
-				if (this.roomsExplored % 10 == 0) {
-					track("explored", ""+this.roomsExplored);
-				}
 			}
 		}
 
@@ -788,11 +787,10 @@ var Cerulean = function () {
 	}
 
 	this.load = function () {
-		var startTime = Date.now();
 		var audioUtil = new AudioUtil();
 		//audioUtil.playIntro();
 		loadFiles(['./shaders/fragment.glsl', './shaders/vertex.glsl'], function (shaders) {
-			start(shaders, audioUtil, startTime);
+			start(shaders, audioUtil);
 		}, function (url) {
 		    alert('Failed to download "' + url + '"');
 		});
@@ -874,7 +872,7 @@ var Cerulean = function () {
 	var loudRoom = null;
 	var resetGuards = false;
 
-	var start = function (shaders, audioUtil, startTime) {
+	var start = function (shaders, audioUtil) {
 		var gameWindow = new GameWindow();
 		var renderer = new Renderer(gameWindow, GameConsts, shaders);
 		var keyboard = new Keyboard();
@@ -949,11 +947,16 @@ var Cerulean = function () {
 			requestAnimationFrame(tick);
   		};
   		requestAnimationFrame(tick);
-		console.log("Game started " + (Date.now() - startTime) + " ms after the window loaded.");
+  		var startDelay = (Date.now() - startTime);
+		console.log("Game started " + startDelay + " ms after the window loaded.");
+		track("game start", ""+startDelay);
 	}
 
 }
 
+//for analytics
+var startTime = Date.now(); 
+var captureCount = 0;
 window.onload = function () {
 	//Guess if if we're running in node-webkit, if we are, go fullscreen.
 	var isNode = (typeof process !== "undefined" && typeof require !== "undefined");
