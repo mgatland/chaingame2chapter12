@@ -1,6 +1,7 @@
 // synth.js and waveshaper.js were copied from https://github.com/cwilso/midi-synth
 // Please see the original code there.
-// The licence is in waveshaper.js
+// This code is derived from code Copyright (c) 2014 Chris Wilson
+// which was released under the MIT licence
 
 function AudioUtil() {
 
